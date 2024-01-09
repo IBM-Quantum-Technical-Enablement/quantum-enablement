@@ -1,0 +1,95 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pyproject-qiskit"
+authors = [
+    {name = "Pedro Rivero", email = "pedro.rivero@ibm.com"},
+]
+maintainers = [
+    {name = "Pedro Rivero", email = "pedro.rivero@ibm.com"},
+]
+keywords = [
+    "quantum computing",
+    "quantum information science",
+    "qiskit",
+]
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dynamic = ["version", "description"]
+requires-python = ">=3.8"
+dependencies = [
+    "qiskit >= 0.45.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "tox >= 4.4.6",
+    "pre-commit >= 2.19.0",
+    "commitizen >= 2.28.0",
+]
+test = [
+    "pytest >= 7.1.2",
+    "pytest-cov >= 3.0.0",
+    "pytest-randomly >= 3.12.0",
+    "qiskit-aer >= 0.11.0",
+]
+lint = [
+    "autoflake >= 1.7.6",
+    "black[jupyter] ~= 22.6.0",
+    "flake8 >= 4.0.1",
+    "isort >= 5.10.1",
+    "mypy >= 0.961",
+    "mypy-extensions >= 0.4.3",
+    "pylint >= 2.14.4",
+]
+docs = [
+    "jupyter-sphinx >= 0.3.2",
+    "nbsphinx >= 0.8.8",
+    "reno >= 3.5.0",
+    "sphinx-autodoc-typehints >= 1.17.0",
+]
+notebook = [
+    "jupyter >= 1.0.0",
+    "notebook >= 6.4.12",
+    "qiskit[visualization] >= 0.45.1",
+    "qiskit-aer >= 0.11.0",
+    "nbqa >= 1.3.1",
+    "treon >= 0.1.3",
+]
+
+[project.urls]
+"Home" = "https://qiskit-community.github.io/prototypes/"
+"Documentation" = "https://github.com/pedrorrivero/pyproject-qiskit/tree/main/docs/"
+"Repository" = "https://github.com/pedrorrivero/pyproject-qiskit/"
+"Download" = "https://pypi.org/project/pyproject-qiskit/"
+
+[tool.flit.module]
+name = "pyproject_qiskit"
+
+
+############################################################
+## TOOLS
+############################################################
+[tool.black]
+line-length = 100
+exclude = '\.ipynb$'
+extend-exclude = '.*/qiskit/.*'

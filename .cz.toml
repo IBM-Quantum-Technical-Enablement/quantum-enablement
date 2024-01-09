@@ -1,0 +1,25 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+bump_message = "bump: version $current_version → $new_version"
+version_format = "$version"
+version = "0.0.0"
+version_files = [
+    ".cz.toml:version",
+    "pyproject_qiskit/__init__.py:__version__",
+    "test/__init__.py:__version__",
+    "CITATION.bib:version"
+]
+update_changelog_on_bump = true
+annotated_tag = true
+style = [
+    ["qmark", "fg:#ff9d00 bold"],
+    ["question", "bold"],
+    ["answer", "fg:#ff9d00 bold"],
+    ["pointer", "fg:#ff9d00 bold"],
+    ["highlighted", "fg:#ff9d00 bold"],
+    ["selected", "fg:#cc5454"],
+    ["separator", "fg:#cc5454"],
+    ["instruction", ""],
+    ["text", ""],
+    ["disabled", "fg:#858585 italic"]
+]

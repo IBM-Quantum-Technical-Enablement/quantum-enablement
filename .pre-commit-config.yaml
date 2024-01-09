@@ -1,0 +1,88 @@
+minimum_pre_commit_version: '2.18.0'
+default_install_hook_types: [pre-commit, commit-msg]
+default_stages: [commit, manual]
+fail_fast: false
+
+
+repos:
+
+################################################################################
+## pre-commit
+################################################################################
+- repo: https://github.com/PyCQA/flake8
+  rev: 5.0.4
+  hooks:
+  - id: flake8
+    name: flake8
+    description: "PyFlakes lint + PyCodeStyle + McCabe cyclomatic complexity"
+    stages: [commit]
+    entry: flake8
+    language: python
+    files: .*\.py
+
+- repo: https://github.com/PyCQA/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    name: isort
+    description: "Sort python imports"
+    stages: [commit]
+    entry: isort --check-only
+    language: python
+    files: .*\.py
+
+- repo: https://github.com/psf/black
+  rev: 22.10.0
+  hooks:
+  - id: black
+    name: black
+    description: "Python code formatter"
+    stages: [commit]
+    entry: black --check
+    language: python
+    files: .*\.py
+
+- repo: https://github.com/PyCQA/pylint
+  rev: v2.15.4
+  hooks:
+  - id: pylint
+    name: pylint
+    description: "Static code analysis"
+    stages: [commit]
+    entry: pylint -rn -d import-error
+    language: python
+    files: .*\.py
+    exclude: (tools|test|docs)/.*
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v0.982
+  hooks:
+  - id: mypy
+    name: mypy
+    description: "Static type checker"
+    stages: [commit]
+    entry: mypy
+    language: python
+    files: .*\.py
+    exclude: (tools|test|docs)/.*
+
+
+################################################################################
+## commit-msg
+################################################################################
+- repo: local
+  hooks:
+  - id: commitizen
+    name: commitizen check
+    description: "Enforce conventional commits"
+    stages: [commit-msg]
+    entry: cz check --commit-msg-file
+    language: python
+
+- repo: https://github.com/jorisroovers/gitlint
+  rev: v0.17.0
+  hooks:
+  - id: gitlint
+    name: gitlint
+    description: "Enforce extra commiting rules"
+    stages: [commit-msg]
