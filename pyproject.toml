@@ -77,7 +77,7 @@ notebook = [
 ]
 
 [project.urls]
-"Home" = "https://qiskit-community.github.io/prototypes/"
+"Home" = "https://github.com/IBM-Quantum-Technical-Enablement"
 "Documentation" = "https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/tree/main/docs/"
 "Repository" = "https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/"
 "Download" = "https://pypi.org/project/quantum-enablement/"
