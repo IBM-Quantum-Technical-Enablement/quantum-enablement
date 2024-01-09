@@ -4,18 +4,18 @@
   ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-informational)
   [![Python](https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-informational)](https://www.python.org/)
   [![Qiskit](https://img.shields.io/badge/Qiskit-%E2%89%A5%200.45.1-6133BD)](https://github.com/Qiskit/qiskit) <br />
-  [![Tests](https://github.com/pedrorrivero/pyproject-qiskit/actions/workflows/test.yml/badge.svg)](https://github.com/pedrorrivero/pyproject-qiskit/actions/workflows/test.yml)
-  [![Coverage](https://coveralls.io/repos/github/pedrorrivero/pyproject-qiskit/badge.svg?branch=main)](https://coveralls.io/github/pedrorrivero/pyproject-qiskit?branch=main)
-  [![Release](https://img.shields.io/github/release/pedrorrivero/pyproject-qiskit.svg?include_prereleases&label=Release)](https://github.com/pedrorrivero/pyproject-qiskit/releases)
+  [![Tests](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/actions/workflows/test.yml/badge.svg)](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/actions/workflows/test.yml)
+  [![Coverage](https://coveralls.io/repos/github/IBM-Quantum-Technical-Enablement/quantum-enablement/badge.svg?branch=main)](https://coveralls.io/github/IBM-Quantum-Technical-Enablement/quantum-enablement?branch=main)
+  [![Release](https://img.shields.io/github/release/IBM-Quantum-Technical-Enablement/quantum-enablement.svg?include_prereleases&label=Release)](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/releases)
   [![DOI](https://img.shields.io/badge/DOI-zz.nnnn/zenodo.ddddddd-informational)](https://zenodo.org/)
-  [![License](https://img.shields.io/github/license/pedrorrivero/pyproject-qiskit?label=License)](LICENSE.txt)
+  [![License](https://img.shields.io/github/license/IBM-Quantum-Technical-Enablement/quantum-enablement?label=License)](LICENSE.txt)
 
 </div> <br />
 
 <!-- PROJECT LOGO AND TITLE -->
 <p align="center">
   <a href="README.md">
-    <img src="https://github.com/pedrorrivero/pyproject-qiskit/blob/main/docs/media/cover.png?raw=true" alt="Logo" width="300">
+    <img src="https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/docs/media/cover.png?raw=true" alt="Logo" width="300">
   </a>
   <h1 align="center">Quantum Enablement</h1>
 </p>
@@ -62,7 +62,7 @@ This team's mission is realized under three main threads:
 3. _Workshops and Residency Program_ --
    The above content will either be shared broadly through [IBM's Quantum Learning Platform](https://learning.quantum.ibm.com/), workshops, or the _Quantum Residency Program_ for Quantum Computational Centers.
 
-This repository acts as a central _installable library_ for all of the team's assets. See [our issues list](https://github.com/pedrorrivero/pyproject-qiskit/issues) for a proposed list of prototypes and tutorials yet to be made.
+This repository acts as a central _installable library_ for all of the team's assets. See [our issues list](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/issues) for a proposed list of prototypes and tutorials yet to be made.
 
 
 <!-- ---------------------------------------------------------------------- -->
@@ -89,19 +89,19 @@ All content will adhere to the following structure:
 
 The latest version of this software package can be easily installed, alongside all required dependencies, via `pip`:
 ```
-pip install pyproject-qiskit
+pip install quantum-enablement
 ```
 
-For more detailed information and alternative installation options see the [installation guide](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/INSTALL.md).
+For more detailed information and alternative installation options see the [installation guide](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/INSTALL.md).
 
 
 <!-- ---------------------------------------------------------------------- -->
 
 ## Documentation
 
-- This project includes a quick [reference guide](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/docs/reference_guide.md) to get started with.
+- This project includes a quick [reference guide](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/docs/reference_guide.md) to get started with.
 - Complete documentation can be found in the code docstrings.
-- Check out the [file map](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/FILEMAP.md) for more information on the structure of this repository.
+- Check out the [file map](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/FILEMAP.md) for more information on the structure of this repository.
 
 
 <!-- ---------------------------------------------------------------------- -->
@@ -110,7 +110,7 @@ For more detailed information and alternative installation options see the [inst
 
 This package is meant to evolve rapidly and, as such, does not follow [Qiskit's deprecation policy](https://github.com/Qiskit/qiskit/blob/main/DEPRECATION.md). 
 
-We may occasionally make breaking changes in order to improve the user experience. When possible, we will keep old interfaces and mark them as deprecated, as long as they can co-exist with the new ones. Each substantial improvement, breaking change, or deprecation will be documented in [`CHANGELOG.md`](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/CHANGELOG.md). 
+We may occasionally make breaking changes in order to improve the user experience. When possible, we will keep old interfaces and mark them as deprecated, as long as they can co-exist with the new ones. Each substantial improvement, breaking change, or deprecation will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md). 
 
 Careful version specification is encouraged (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
 
@@ -119,16 +119,16 @@ Careful version specification is encouraged (e.g. [version pinning](https://www.
 
 ## Contributing
 
-- The easiest way to contribute is by [giving feedback](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/CONTRIBUTING.md#giving-feedback).
-- If you wish to contribute to the development of the software, you must read and follow our [contribution guidelines](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/CONTRIBUTING.md).
-- By participating, you are expected to uphold our [code of conduct](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/CODE_OF_CONDUCT.md).
+- The easiest way to contribute is by [giving feedback](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CONTRIBUTING.md#giving-feedback).
+- If you wish to contribute to the development of the software, you must read and follow our [contribution guidelines](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CONTRIBUTING.md).
+- By participating, you are expected to uphold our [code of conduct](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CODE_OF_CONDUCT.md).
 
 
 <!-- ---------------------------------------------------------------------- -->
 
 ## Authors and Citation
 
-This project is the work of [many people](https://github.com/pedrorrivero/pyproject-qiskit/graphs/contributors) who contribute at different levels. Please cite as per the included [BibTeX file](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/CITATION.bib).
+This project is the work of [many people](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/graphs/contributors) who contribute at different levels. Please cite as per the included [BibTeX file](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CITATION.bib).
 
 
 <!-- ---------------------------------------------------------------------- -->
@@ -152,4 +152,4 @@ This project is the work of [many people](https://github.com/pedrorrivero/pyproj
 
 ## License
 
-[Apache License 2.0](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/LICENSE.txt)
+[Apache License 2.0](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/LICENSE.txt)

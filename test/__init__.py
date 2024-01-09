@@ -12,7 +12,7 @@
 
 from collections.abc import Iterable, Sequence
 
-from pyproject_qiskit import __version__
+from quantum_enablement import __version__
 
 
 def test_version():

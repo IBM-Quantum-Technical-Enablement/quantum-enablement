@@ -5,7 +5,7 @@ version_format = "$version"
 version = "0.0.0"
 version_files = [
     ".cz.toml:version",
-    "pyproject_qiskit/__init__.py:__version__",
+    "quantum_enablement/__init__.py:__version__",
     "test/__init__.py:__version__",
     "CITATION.bib:version"
 ]
