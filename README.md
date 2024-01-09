@@ -17,7 +17,7 @@
   <a href="README.md">
     <img src="https://github.com/pedrorrivero/pyproject-qiskit/blob/main/docs/media/cover.png?raw=true" alt="Logo" width="300">
   </a>
-  <h1 align="center">Pyproject Qiskit</h1>
+  <h1 align="center">Quantum Enablement</h1>
 </p>
 
 <!-- QUICK LINKS -->
@@ -35,7 +35,7 @@
 
 ## Table of contents
 
-1. [About this Project](#about-this-project)
+1. [About the Team](#about-the-team)
 2. [Installation](#installation)
 3. [Documentation](#documentation)
 4. [Deprecation Policy](#deprecation-policy)
@@ -48,21 +48,38 @@
 
 <!-- ---------------------------------------------------------------------- -->
 
-## About this Project
+## About the Team
 
-This template repository is a tool for creating [Qiskit](https://www.ibm.com/quantum/qiskit)-based Python projects quickly. It provides much of the necessary boilerplate code and configurations needed for a fully functional, professional, software package.
+IBM's _Quantum Engineering and Enabling Technologies_ (QEET) team is meant to help enable quantum computing practitioners to get better results from quantum hardware, and to identify critical tooling which will help improve such end-user's workflows.
 
-It was originally put together for quick development of _Quantum Software Prototypes_: collaborations between developers and researchers to bring users early access to solutions from cutting-edge research.
+This team's mission is realized under three main threads:
+1. _Tutorials and demonstrations_ -- 
+   To highlight particular Qiskit features and their measured benefits around two key areas:
+   - _Capabilities_ to improve hardware results. This will typically focus on steps 2 and 4 of the _Qiskit Pattern_ steps.
+   - _Applications_ to drive user engagement with systems. This will typically focus on steps 1 and 4 of the _Qiskit Pattern_ steps.
+2. _Prototype research and development_ --
+   Consisting on the evaluation and validation of promising research results or methods leading to software tools and content creation. When Qiskit does not provide the needed functionality or performance, we will assemble and maintain _Quantum Software Prototypes_ while integration into the production stack is evaluated or completed. These will provide early access to solutions from cutting-edge research.
+3. _Workshops and Residency Program_ --
+   The above content will either be shared broadly through [IBM's Quantum Learning Platform](https://learning.quantum.ibm.com/), workshops, or the _Quantum Residency Program_ for Quantum Computational Centers.
 
-Check out the [file map](https://github.com/pedrorrivero/pyproject-qiskit/blob/main/FILEMAP.md) for more information on the structure of the repository.
+This repository acts as a central _installable library_ for all of the team's assets. See [our issues list](https://github.com/pedrorrivero/pyproject-qiskit/issues) for a proposed list of prototypes and tutorials yet to be made.
+
+
+<!-- ---------------------------------------------------------------------- -->
 
 <details>
-<summary>Some projects using this template</summary>
+<summary><h3>Qiskit Pattern</h3></summary>
 
-- [Quantum Enablement](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement)
-- [Prototype ZNE](https://github.com/qiskit-community/prototype-zne)
-- [PR Toolbox](https://github.com/pedrorrivero/pr-toolbox)
-- [Staged Primitives](https://github.com/Qiskit-Extensions/staged-primitives)
+All content will adhere to the following structure:
+1. _Quantum Encoding_ --
+   Translating the target problem to a quantum native format is the critical first step in developing a quantum workflow. To this end, the team will focus on application agnostic methods that can be tested against arbitrary workflows.
+2. _Circuit and Measurement Optimization_ --
+   Once a given problem has been translated to the desired quantum native format, the resulting circuit and required measurements can usually be optimized in a variety of ways to ensure best performance.
+3. _Execute on Quantum Hardware_ --
+   Once a given problem is quantum encoded and optimized, users execute it on a quantum backend. We will highlight how to do so through the Qiskit Runtime Primitives whenverever possible. 
+4. _Post Process Results_ --
+   Once results are executed on quantum hardware a user needs to post-process the results in order to translate into the desired solution. This process can either be related to step 1 (e.g. selecting a given bitstring for many optimization problems) or step 2 (e.g. knitting results together from a cut circuit).
+
 </details>
 
 
@@ -120,8 +137,8 @@ This project is the work of [many people](https://github.com/pedrorrivero/pyproj
 
 - [*Pedro Rivero*](https://github.com/pedrorrivero):
   for the development of [`pyproject-qiskit`](https://github.com/pedrorrivero/pyproject-qiskit), an open-source template repository for Qiskit-based software projects.
-- [*Jim Garrison*](https://github.com/garrison):
-  for insightful discussions and the original development of scripts for extremal version testing.
+- *Paul Nation*:
+  for his pioneering work, technical insight, and guidance.
 
 
 <!-- ---------------------------------------------------------------------- -->
