@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "pyproject-qiskit"
+name = "quantum-enablement"
 authors = [
     {name = "Pedro Rivero", email = "pedro.rivero@ibm.com"},
 ]
@@ -78,12 +78,12 @@ notebook = [
 
 [project.urls]
 "Home" = "https://qiskit-community.github.io/prototypes/"
-"Documentation" = "https://github.com/pedrorrivero/pyproject-qiskit/tree/main/docs/"
-"Repository" = "https://github.com/pedrorrivero/pyproject-qiskit/"
-"Download" = "https://pypi.org/project/pyproject-qiskit/"
+"Documentation" = "https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/tree/main/docs/"
+"Repository" = "https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/"
+"Download" = "https://pypi.org/project/quantum-enablement/"
 
 [tool.flit.module]
-name = "pyproject_qiskit"
+name = "quantum_enablement"
 
 
 ############################################################
