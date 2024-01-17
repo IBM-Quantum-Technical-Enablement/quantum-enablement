@@ -94,3 +94,6 @@ name = "quantum_enablement"
 line-length = 100
 exclude = '\.ipynb$'
 extend-exclude = '.*/qiskit/.*'
+
+[tool.autoflake]
+remove-all-unused-imports = true

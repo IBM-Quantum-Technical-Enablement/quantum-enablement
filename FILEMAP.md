@@ -12,7 +12,7 @@
   a summary of the repository structure and explanations of the different files and folders.
 - [`INSTALL.md`](INSTALL.md) --
   guidelines to install the software package contained in this repo.
-- [`LICENSE.md`](LICENSE.md) --
+- [`LICENSE.txt`](LICENSE.txt) --
   one of the [standard legal requirements](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository) for an open source project. There are different types of [licenses for software](https://en.wikipedia.org/wiki/Software_license), some of the most popular being [open source](https://opensource.org/licenses).
 - [`README.md`](README.md) -- 
   main readme for repository.
@@ -37,7 +37,11 @@
   - [`unit`](test/unit/) -- 
     folder for [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
 - [`pyproject.toml`](pyproject.toml) --
-  file containing the [build and package configurations](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) for the python project. This file also contains configurations for [Black](https://black.readthedocs.io/), a tool for automatic code formatting.
+  file containing the [build and package configurations](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) for the python project. This file also contains configurations for:
+  - [Black](https://black.readthedocs.io/) --
+    a tool for automatic code formatting.
+  - [Autoflake](https://github.com/PyCQA/autoflake) -- 
+    a tool for removing unused imports and variables.
 
 
 ## CI/CD
