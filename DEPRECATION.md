@@ -14,7 +14,7 @@ Every other piece of source code conforms the _public-facing_ API of this librar
 
 ## Migration guides
 
-In alignment with the _Quantum Software Prototype_ mission, to avoid redundancy with [Qiskit](https://www.ibm.com/quantum/qiskit) and other IBM software products, once a specific capability from this library is integrated into IBM's stable product stack we will proceed to its deprecation here.
+In alignment with the _Quantum Software Prototype_ spirit, to avoid redundancy with [Qiskit](https://www.ibm.com/quantum/qiskit) and other IBM software products, once a specific capability from this library is integrated into IBM's stable product stack we will proceed to its deprecation here.
 
 Said deprecation process will last for at least three months, and will not begin until a _migration guide_ explaining users how to transition to the new product feature is produced, approved, and published.
 
