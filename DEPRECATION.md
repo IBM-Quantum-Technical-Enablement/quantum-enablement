@@ -12,7 +12,7 @@ Some capabilities may be pre-released before reaching a stable state. These will
 Every other piece of source code conforms the _public-facing_ API of this library and will therefore be subject to the rules outlined in this document.
 
 
-## Migration guides
+## Migrations
 
 In alignment with the spirit of _Quantum Software Prototypes_, as well as to avoid redundancy with [Qiskit](https://www.ibm.com/quantum/qiskit) and other IBM software products, once a specific capability from this library gets integrated into IBM's stable product stack we will proceed to its deprecation here.
 
