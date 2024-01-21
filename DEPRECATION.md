@@ -5,9 +5,9 @@ This software library is meant to evolve rapidly and, as such, does not follow [
 
 ## Supported API and pre-releases
 
-Following [Python's naming conventions](https://realpython.com/python-double-underscore/) as outlined by [PEP8](https://peps.python.org/pep-0008/), any module, variable, function, or class whose name starts with a leading underscore `_` will be considered _internal/"private"_ and not part of this library's supported _application programming interface_ (API).
+Following [Python's naming conventions](https://realpython.com/python-double-underscore/) as outlined by [PEP8](https://peps.python.org/pep-0008/), any module, variable, function, or class whose name starts with a leading underscore `_` will be considered _internal_ and not part of this library's supported _application programming interface_ (API).
 
-Some capabilities may be pre-released before reaching a stable state. These will not adhere to the deprecation policies in place and will actively warn users of their unstable, pre-release, condition.
+Some capabilities may be pre-released before reaching a stable state. These will not adhere to the deprecation policies in place and will actively warn users of their unstable, pre-release, condition until they are deemed otherwise.
 
 Every other piece of source code conforms the _public-facing_ API of this library and will therefore be subject to the rules outlined in this document.
 
