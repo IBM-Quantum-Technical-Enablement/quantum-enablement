@@ -108,11 +108,9 @@ For more detailed information and alternative installation options see the [inst
 
 ## Deprecation Policy
 
-This software library is meant to evolve rapidly and, as such, follows its own [deprecation policy](DEPRECATION.md) different from Qiskit's.
-
-Each substantial improvement, breaking change, or deprecation occurring on each release will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md).
-
-To avoid dependency issues, exact version specification is encouraged if no upcoming features are needed (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
+- This software library is meant to evolve rapidly and, as such, follows its own [deprecation policy](DEPRECATION.md) different from Qiskit's.
+- Each substantial improvement, breaking change, or deprecation occurring on each release will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md).
+- To avoid dependency issues, exact version specification is encouraged if no upcoming features are needed (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
 
 
 <!-- ---------------------------------------------------------------------- -->
