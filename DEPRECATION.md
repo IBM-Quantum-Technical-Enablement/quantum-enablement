@@ -2,6 +2,8 @@
 
 This software library is meant to evolve rapidly and, as such, does not follow [Qiskit's deprecation policy](https://github.com/Qiskit/qiskit/blob/main/DEPRECATION.md). Nonetheless, we will always try to give users ample time to adjust to changes without breaking code that they have already written.
 
+To avoid dependency issues, exact version specification is encouraged if no upcoming updates are needed (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
+
 
 ## Supported API and pre-releases
 
