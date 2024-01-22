@@ -8,6 +8,8 @@
   participation in the repository is subject to these conduct guidelines.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) --
   guidelines to contribute to the repository.
+- [`DEPRECATION.md`](DEPRECATION.md) --
+  deprecation policy.
 - [`FILEMAP.md`](FILEMAP.md) --
   a summary of the repository structure and explanations of the different files and folders.
 - [`INSTALL.md`](INSTALL.md) --

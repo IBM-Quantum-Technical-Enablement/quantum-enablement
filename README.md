@@ -87,7 +87,7 @@ All content will adhere to the following structure:
 
 ## Installation
 
-The latest version of this software package can be easily installed, alongside all required dependencies, via `pip`:
+The latest version of this software library can be easily installed, alongside all required dependencies, via `pip`:
 ```
 pip install quantum-enablement
 ```
@@ -108,11 +108,9 @@ For more detailed information and alternative installation options see the [inst
 
 ## Deprecation Policy
 
-This package is meant to evolve rapidly and, as such, does not follow [Qiskit's deprecation policy](https://github.com/Qiskit/qiskit/blob/main/DEPRECATION.md). 
-
-We may occasionally make breaking changes in order to improve the user experience. When possible, we will keep old interfaces and mark them as deprecated, as long as they can co-exist with the new ones. Each substantial improvement, breaking change, or deprecation will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md). 
-
-Careful version specification is encouraged (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
+- This software library is meant to evolve rapidly and, as such, follows its own [deprecation policy](DEPRECATION.md) different from Qiskit's.
+- Each substantial improvement, breaking change, or deprecation occurring for each release will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md).
+- To avoid dependency issues, exact version specification is encouraged if no upcoming updates are needed (e.g. [version pinning](https://www.easypost.com/dependency-pinning-guide)).
 
 
 <!-- ---------------------------------------------------------------------- -->
