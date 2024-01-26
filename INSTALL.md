@@ -1,4 +1,4 @@
-# Quantum Prototype Installation Guide
+# Installation Guide
 
 The following installation guide is generic and therefore needs to be adapted to the particular package that you want to install. This is easily done by replacing:
 1. The template _repo url_ `https://github.com/pedrorrivero/pyproject-qiskit.git` with the url of the remote git repository hosting the package (e.g. `https://github.com/Qiskit-Extensions/staged-primitives.git`).
@@ -61,9 +61,7 @@ Although not strictly required, it can be useful to create a new *virtual enviro
 
 ## Basic PyPI installation
 
-<!-- :warning: **Currently unavailable** -->
-
-The easiest way to install this package is from the PyPI public repository. This will install the latest stable version available, which will provide a higher level of robustness, although patches and updates might take longer to be available. From the terminal, use pip to install the package:
+The easiest way to install this package is from the PyPI public repository. This will install the latest stable version available, which will provide a higher level of robustness, although patches and updates might take longer to be available. From the terminal, use `pip` to install the package:
 ```
 pip install pyproject-qiskit
 ```
@@ -73,10 +71,29 @@ To update the package to its latest release (i.e. at a later point in time):
 pip install -U pyproject-qiskit
 ```
 
+> [!TIP]
+> If this package has not yet been published to PyPI, you will need to [install it from source](#installation-from-source). The easiest way to do so is by installing directly [from the remote git repository](#from-remote) (e.g. GitHub).
+
 
 ## Installation from source
 
 To get the latest features and patches as soon as they are released, or to contribute, you will need to install from source. Please note that bleeding-edge software is less tested and therefore more likely to include bugs despite our best efforts.
+
+### From remote
+
+If you don't care about making changes to the source code, you can simply use `pip` to easily install it [from the remote git repository](https://pip.pypa.io/en/stable/topics/vcs-support/):
+```
+pip install pyproject-qiskit@git+https://github.com/pedrorrivero/pyproject-qiskit
+```
+
+Updates can be retrieved at any point via:
+```
+pip install -U pyproject-qiskit@git+https://github.com/pedrorrivero/pyproject-qiskit
+```
+
+### From local
+
+If you wish to make changes to the source code, either for [contribution](CONTRIBUTING.md) or personal use, you will need to download a local copy of the repository and install it using `pip`:
 
 0. Make sure you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed for version control.
 1. From the terminal, clone the repository. This will add the provided URL to the list of remotes under the name `origin`:
