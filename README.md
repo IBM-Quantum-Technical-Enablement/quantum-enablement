@@ -89,7 +89,7 @@ All content will adhere to the following structure:
 
 The latest version of this software library can be easily installed, alongside all required dependencies, via `pip`:
 ```
-pip install quantum-enablement
+pip install quantum-enablement@git+https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement
 ```
 
 For more detailed information and alternative installation options see the [installation guide](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/INSTALL.md).
