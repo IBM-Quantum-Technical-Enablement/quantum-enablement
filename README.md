@@ -135,7 +135,7 @@ This project is the work of [many people](https://github.com/IBM-Quantum-Technic
 
 - [*Pedro Rivero*](https://github.com/pedrorrivero):
   for the development of [`pyproject-qiskit`](https://github.com/pedrorrivero/pyproject-qiskit), an open-source template repository for Qiskit-based software projects.
-- *Paul Nation*:
+- [*Paul Nation*](https://github.com/nonhermitian):
   for his pioneering work, technical insight, and guidance.
 
 
