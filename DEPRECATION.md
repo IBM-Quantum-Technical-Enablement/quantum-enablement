@@ -35,6 +35,3 @@ Major version zero (i.e. `0.X.Y`) may include breaking changes in minor releases
 ## Documenting changes
 
 Each substantial improvement, breaking change, or deprecation occurring for each release will be documented in [`CHANGELOG.md`](CHANGELOG.md).
-
-
-
