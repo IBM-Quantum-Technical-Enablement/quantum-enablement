@@ -34,4 +34,4 @@ Major version zero (i.e. `0.X.Y`) may include breaking changes in minor releases
 
 ## Documenting changes
 
-Each substantial improvement, breaking change, or deprecation occurring for each release will be documented in [`CHANGELOG.md`](https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement/blob/main/CHANGELOG.md).
+Each substantial improvement, breaking change, or deprecation occurring for each release will be documented in [`CHANGELOG.md`](CHANGELOG.md).
