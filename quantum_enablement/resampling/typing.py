@@ -14,41 +14,43 @@
 
 
 from collections import Counter
-from collections.abc import Sequence
-from typing import Any, Union
+from collections.abc import Mapping, Sequence
+from typing import Any, Union, get_args
 
+from numpy import asarray
+from numpy.typing import ArrayLike
 from qiskit.primitives import SamplerResult
 from qiskit.primitives.base.base_result import BasePrimitiveResult
 from qiskit.result import ProbDistribution, QuasiDistribution
 
-# TODO: define Memory class with casting methods
-Memory = Sequence  # Note: Sequence[int], although historically it has been Sequence[str]
+# TODO: add Memory (define class with casting methods)
 # TODO: add Counts
-SamplesLike = Union[Memory, ProbDistribution, QuasiDistribution, SamplerResult]
+QiskitSamplesLike = Union[ProbDistribution, QuasiDistribution, SamplerResult]
+SamplesLike = Union[Sequence, Mapping, QiskitSamplesLike]
 
 
 ################################################################################
 ## CASTING
 ################################################################################
-def memory_to_distribution(memory: Memory) -> ProbDistribution:
-    """Cast memory to probability distribution object."""
-    if not isinstance(memory, Memory):
-        raise TypeError(f"Expected type 'Memory', got '{type(memory)}' instead.")
-    counts = Counter(memory)
-    total = len(memory)
-    distribution = {key: value / total for key, value in counts.items()}
-    return ProbDistribution(distribution, shots=total)
+def samples_to_distribution(samples: Sequence) -> ProbDistribution:
+    """Cast samples into probability distribution object."""
+    if not isinstance(samples, Sequence):
+        raise TypeError(f"Expected type 'Sequence', got '{type(samples)}' instead.")
+    counts = Counter(samples)
+    size = len(samples)
+    distribution = {key: value / size for key, value in counts.items()}
+    return ProbDistribution(distribution, shots=size)
 
 
-def memory_to_quasi_dist(memory: Memory) -> QuasiDistribution:
-    """Cast memory to quasi-distribution object."""
-    distribution = memory_to_distribution(memory)
+def samples_to_quasi_dist(samples: Sequence) -> QuasiDistribution:
+    """Cast samples to quasi-distribution object."""
+    distribution = samples_to_distribution(samples)
     return distribution_to_quasi_dist(distribution)
 
 
-def memory_to_result(memory: Memory) -> SamplerResult:
-    """Cast memory to sampler result object."""
-    quasi_dist = memory_to_quasi_dist(memory)
+def samples_to_result(samples: Sequence) -> SamplerResult:
+    """Cast samples to sampler result object."""
+    quasi_dist = samples_to_quasi_dist(samples)
     return quasi_dist_to_result(quasi_dist)
 
 
@@ -77,8 +79,34 @@ def quasi_dist_to_result(quasi_dist: QuasiDistribution) -> SamplerResult:
     if quasi_dist.shots:
         metadatum["shots"] = quasi_dist.shots
     if quasi_dist.stddev_upper_bound:
-        pass  # TODO: add new metadata
+        pass  # TODO: add more metadata
     return SamplerResult(quasi_dists=[quasi_dist], metadata=[metadatum])
+
+
+################################################################################
+## CHECKING
+################################################################################
+def is_numeric_array(a: ArrayLike, /) -> bool:
+    """Check if array-like is over numeric types."""
+    return asarray(a).dtype.kind in {"b", "u", "i", "f", "c"}
+
+
+def is_qiskit_samples_like(o: Any, /) -> bool:
+    """Check if input object is instance of QiskitSamplesLike."""
+    types = get_args(QiskitSamplesLike)
+    return isinstance(o, types)
+
+
+def is_counts_like(o: Any, /) -> bool:
+    """Check if input object is a counts-like (i.e. a multiset)."""
+    if not isinstance(o, Mapping):
+        return False
+    counts = list(o.values())
+    if not asarray(counts).dtype.kind in {"b", "u", "i"}:
+        return False
+    if not all(isinstance(c, int) for c in counts):
+        return False
+    return True
 
 
 ################################################################################

@@ -13,19 +13,30 @@
 """Bootstrapping tools and techniques."""
 
 
+from collections.abc import Mapping, Sequence
 from functools import singledispatchmethod
 
+from numpy import (  # pylint: disable=redefined-builtin
+    abs,
+    asarray,
+    complex_,
+    float_,
+    sum,
+)
 from numpy.random import Generator, default_rng
+from numpy.typing import NDArray
 from qiskit.primitives import SamplerResult
 from qiskit.result import ProbDistribution, QuasiDistribution
 
 from .typing import (
-    Memory,
-    SamplesLike,
+    QiskitSamplesLike,
     compose_results,
-    memory_to_distribution,
-    memory_to_quasi_dist,
-    memory_to_result,
+    distribution_to_quasi_dist,
+    distribution_to_result,
+    is_counts_like,
+    is_numeric_array,
+    is_qiskit_samples_like,
+    samples_to_distribution,
 )
 
 
@@ -65,8 +76,8 @@ class Bootstrap:
     ## PUBLIC API
     ################################################################################
     @singledispatchmethod
-    def resample_memory(self, samples, *, size: int | None = None) -> Memory:
-        """Resample memory randomly.
+    def resample(self, samples, *, size: int | None = None) -> list:
+        """Resample randomly.
 
         Args:
             samples: original `SamplesLike` object to resample from.
@@ -75,13 +86,51 @@ class Bootstrap:
                 and fall back to the default value otherwise.
 
         Returns:
-            Memory object randomly resampled from input samples.
+            List of randomly resampled elements.
         """
         raise TypeError(f"Expected type 'SamplesLike', got '{type(samples)}' instead.")
 
-    @resample_memory.register
-    def _(self, samples: SamplerResult, *, size: int | None = None) -> Memory:
-        if samples.num_experiments != 1:
+    @resample.register
+    def _(self, samples: Sequence, *, size: int | None = None) -> list:
+        if len(samples) == 0:
+            raise ValueError("Empty input samples, no samples to resample from.")
+        inferred_size = len(samples)
+        size = size or inferred_size or self.default_size
+        size = self._validate_size(size)
+        resamples = self.rng.choice(samples, p=None, size=size, replace=True)
+        return resamples.tolist()
+
+    @resample.register
+    def _(self, samples: Mapping, *, size: int | None = None) -> list:
+        if len(samples) == 0:
+            raise ValueError("Empty input samples, no samples to resample from.")
+        population = list(samples.keys())
+        frequencies = list(samples.values())
+        if not is_numeric_array(frequencies):
+            raise TypeError("Input sample frequencies are not of numeric type.")
+        inferred_size = sum(frequencies) if is_counts_like(samples) else None
+        size = size or inferred_size or self.default_size
+        size = self._validate_size(size)
+        probabilities = self._derive_probabilities(frequencies)
+        resamples = self.rng.choice(population, p=probabilities, size=size, replace=True)
+        return resamples.tolist()
+
+    @resample.register
+    def _(self, samples: ProbDistribution, *, size: int | None = None) -> list[int]:
+        size = size or samples.shots
+        mapping = dict(samples)
+        return self.resample(mapping, size=size)
+
+    @resample.register
+    def _(self, samples: QuasiDistribution, *, size: int | None = None) -> list[int]:
+        distribution = samples.nearest_probability_distribution(return_distance=False)
+        return self.resample(distribution, size=size)
+
+    @resample.register
+    def _(self, samples: SamplerResult, *, size: int | None = None) -> list[int]:
+        if samples.num_experiments == 0:
+            raise ValueError("No experiments to resample from in input SamplerResult.")
+        if samples.num_experiments > 1:
             raise ValueError(
                 f"Number of experiments in input result ({samples.num_experiments}) "
                 "exceeds the maximum number of experiments allowed (1)."
@@ -89,36 +138,15 @@ class Bootstrap:
         quasi_dist = samples.quasi_dists[0]
         metadatum = samples.metadata[0]
         size = size or metadatum.get("shots", None)
-        return self.resample_memory(quasi_dist, size=size)
-
-    @resample_memory.register
-    def _(self, samples: QuasiDistribution, *, size: int | None = None) -> Memory:
-        distribution = samples.nearest_probability_distribution(return_distance=False)
-        return self.resample_memory(distribution, size=size)
-
-    @resample_memory.register
-    def _(self, samples: ProbDistribution, *, size: int | None = None) -> Memory:
-        population = list(samples.keys())
-        probabilities = list(samples.values())
-        size = size or samples.shots or self.default_size
-        size = self._validate_size(size)
-        resamples = self.rng.choice(population, p=probabilities, size=size, replace=True)
-        return resamples.tolist()
-
-    @resample_memory.register
-    def _(self, samples: Memory, *, size: int | None = None) -> Memory:
-        size = size or self.default_size
-        size = self._validate_size(size)
-        resamples = self.rng.choice(samples, p=None, size=size, replace=True)
-        return resamples.tolist()
+        return self.resample(quasi_dist, size=size)
 
     def resample_distribution(
-        self, samples: SamplesLike, *, size: int | None = None
+        self, samples: QiskitSamplesLike, *, size: int | None = None
     ) -> ProbDistribution:
         """Resample probability distribution randomly.
 
         Args:
-            samples: original `SamplesLike` object to resample from.
+            samples: original `QiskitSamplesLike` object to resample from.
             size: the number of (re)samples to collect randomly.
                 If `None`, it will try to be inferred from `samples`
                 and fall back to the default value otherwise.
@@ -126,16 +154,18 @@ class Bootstrap:
         Returns:
             ProbDistribution object randomly resampled from input samples.
         """
-        memory = self.resample_memory(samples, size=size)
-        return memory_to_distribution(memory)
+        if not is_qiskit_samples_like(samples):
+            raise TypeError(f"Expected type 'QiskitSamplesLike', got '{type(samples)}' instead.")
+        memory = self.resample(samples, size=size)
+        return samples_to_distribution(memory)
 
     def resample_quasi_dist(
-        self, samples: SamplesLike, *, size: int | None = None
+        self, samples: QiskitSamplesLike, *, size: int | None = None
     ) -> QuasiDistribution:
         """Resample quasi-distribution randomly.
 
         Args:
-            samples: original `SamplesLike` object to resample from.
+            samples: original `QiskitSamplesLike` object to resample from.
             size: the number of (re)samples to collect randomly.
                 If `None`, it will try to be inferred from `samples`
                 and fall back to the default value otherwise.
@@ -143,15 +173,15 @@ class Bootstrap:
         Returns:
             QuasiDistribution object randomly resampled from input samples.
         """
-        memory = self.resample_memory(samples, size=size)
-        return memory_to_quasi_dist(memory)
+        distribution = self.resample_distribution(samples, size=size)
+        return distribution_to_quasi_dist(distribution)
 
     @singledispatchmethod
     def resample_result(self, samples, *, size: int | None = None) -> SamplerResult:
         """Resample sampler result randomly.
 
         Args:
-            samples: original `SamplesLike` object to resample from.
+            samples: original `QiskitSamplesLike` object to resample from.
             size: the number of (re)samples to collect randomly.
                 If `None`, it will try to be inferred from `samples`
                 and fall back to the default value otherwise.
@@ -159,22 +189,24 @@ class Bootstrap:
         Returns:
             SamplerResult object randomly resampled from input samples.
         """
-        memory = self.resample_memory(samples, size=size)
-        return memory_to_result(memory)
+        distribution = self.resample_distribution(samples, size=size)
+        return distribution_to_result(distribution)
 
-    @resample_result.register  # Note: to account for multi-experiment results
+    @resample_result.register
     def _(self, samples: SamplerResult, *, size: int | None = None) -> SamplerResult:
-        resamples: list[SamplerResult] = []
-        for result in samples.decompose():
-            memory = self.resample_memory(result, size=size)
-            resample = memory_to_result(memory)
-            resamples.append(resample)
-        return compose_results(*resamples)
+        if samples.num_experiments > 1:
+            results = (self.resample_result(result) for result in samples.decompose())
+            return compose_results(*results)
+        distribution = self.resample_distribution(samples, size=size)
+        result = distribution_to_result(distribution)
+        result.metadata[0] = {**samples.metadata[0], **result.metadata[0]}
+        return result
 
     ################################################################################
     ## INTERNAL API
     ################################################################################
     def _validate_size(self, size: int) -> int:
+        """Validate input size."""
         try:
             size = int(size)
         except (TypeError, ValueError) as error:
@@ -182,3 +214,14 @@ class Bootstrap:
         if size < 1:
             raise ValueError(f"Resampling size must be greater than zero, got '{size}' instead.")
         return size
+
+    def _derive_probabilities(
+        self, coefficients: Sequence[complex] | NDArray[complex_]
+    ) -> NDArray[float_]:
+        """Derives probabilities from a sequence of complex coefficients using the L1 norm."""
+        coefficients = asarray(coefficients)
+        if not is_numeric_array(coefficients):
+            raise TypeError("Input coefficients are not of numeric type.")
+        weights = abs(coefficients)
+        probabilities = weights / sum(weights)
+        return probabilities

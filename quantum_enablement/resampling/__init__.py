@@ -14,10 +14,7 @@
 
 
 from .bootstrap import Bootstrap
-from .typing import Memory, SamplesLike
 
 __all__ = [
     "Bootstrap",
-    "SamplesLike",
-    "Memory",
 ]
