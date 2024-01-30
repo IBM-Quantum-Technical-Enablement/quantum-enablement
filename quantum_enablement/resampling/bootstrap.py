@@ -93,7 +93,7 @@ class Bootstrap:
     @resample.register
     def _(self, samples: Sequence, *, size: int | None = None) -> list:
         if len(samples) == 0:
-            raise ValueError("Empty input samples, no samples to resample from.")
+            raise ValueError("Empty input, no samples to resample from.")
         inferred_size = len(samples)
         size = size or inferred_size or self.default_size
         size = self._validate_size(size)
@@ -103,7 +103,7 @@ class Bootstrap:
     @resample.register
     def _(self, samples: Mapping, *, size: int | None = None) -> list:
         if len(samples) == 0:
-            raise ValueError("Empty input samples, no samples to resample from.")
+            raise ValueError("Empty input, no samples to resample from.")
         population = list(samples.keys())
         frequencies = list(samples.values())
         if not is_numeric_array(frequencies):
