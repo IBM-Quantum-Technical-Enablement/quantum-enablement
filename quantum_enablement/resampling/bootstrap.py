@@ -28,7 +28,7 @@ from numpy.typing import NDArray
 from qiskit.primitives import SamplerResult
 from qiskit.result import ProbDistribution, QuasiDistribution
 
-from .typing import (
+from ._typing import (
     QiskitSamplesLike,
     compose_results,
     distribution_to_quasi_dist,
