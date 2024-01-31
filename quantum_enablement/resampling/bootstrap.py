@@ -52,7 +52,7 @@ class Bootstrap:
     """
 
     def __init__(self, *, default_size: int | None = None, seed: int | None = None) -> None:
-        self.default_size = default_size or 10_000
+        self.default_size = default_size
         self._rng: Generator = default_rng(seed)
 
     ################################################################################
@@ -64,7 +64,8 @@ class Bootstrap:
         return self._default_size
 
     @default_size.setter
-    def default_size(self, size: int) -> None:
+    def default_size(self, size: int | None) -> None:
+        size = size or 10_000
         self._default_size: int = self._validate_size(size)
 
     ################################################################################
