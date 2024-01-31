@@ -52,17 +52,12 @@ class Bootstrap:
     """
 
     def __init__(self, *, default_size: int | None = None, seed: int | None = None) -> None:
-        self._rng: Generator = default_rng(seed)
         self.default_size = default_size or 10_000
+        self._rng: Generator = default_rng(seed)
 
     ################################################################################
     ## PROPERTIES
     ################################################################################
-    @property
-    def rng(self) -> Generator:
-        """Random number generator."""
-        return self._rng
-
     @property
     def default_size(self) -> int:
         """Default resample size."""
@@ -97,7 +92,7 @@ class Bootstrap:
         inferred_size = len(samples)
         size = size or inferred_size or self.default_size
         size = self._validate_size(size)
-        resamples = self.rng.choice(samples, p=None, size=size, replace=True)
+        resamples = self._rng.choice(samples, p=None, size=size, replace=True)
         return resamples.tolist()
 
     @resample.register
@@ -112,7 +107,7 @@ class Bootstrap:
         size = size or inferred_size or self.default_size
         size = self._validate_size(size)
         probabilities = self._derive_probabilities(frequencies)
-        resamples = self.rng.choice(population, p=probabilities, size=size, replace=True)
+        resamples = self._rng.choice(population, p=probabilities, size=size, replace=True)
         return resamples.tolist()
 
     @resample.register
