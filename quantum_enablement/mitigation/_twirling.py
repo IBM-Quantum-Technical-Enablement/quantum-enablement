@@ -88,7 +88,8 @@ class TwoQubitPauliTwirl(TransformationPass):
     def _get_random_twirl(self, gate: str) -> Twirl:
         """Get random twirl for the input gate."""
         twirls = self._gate_twirls.get(gate)
-        return self._rng.choice(twirls)
+        choice = self._rng.choice(len(twirls))
+        return twirls[choice]
 
 
 ################################################################################
