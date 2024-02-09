@@ -13,7 +13,7 @@
 """Resampling tools and techniques."""
 
 
-from .bootstrap import Bootstrap
+from ._bootstrap import Bootstrap
 
 __all__ = [
     "Bootstrap",
