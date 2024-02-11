@@ -27,7 +27,6 @@ from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler import TransformationPass
 
 Twirl = namedtuple("Twirl", ["pre", "post", "phase"])
-TRIVIAL_TWIRL = Twirl(pre="II", post="II", phase=0.0)
 
 ################################################################################
 ## APPLY TWIRLS
@@ -51,6 +50,8 @@ class TwoQubitPauliTwirl(TransformationPass):
         Adapted from the reference:
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
+
+    TRIVIAL_TWIRL = Twirl(pre="II", post="II", phase=0.0)
 
     def __init__(self, target_gates: list[str] | None = None, *, seed: int | None = None):
         super().__init__()
@@ -88,7 +89,7 @@ class TwoQubitPauliTwirl(TransformationPass):
 
     def _get_random_twirl(self, gate: str) -> Twirl:
         """Get random twirl for the input gate."""
-        twirls = self._gate_twirls.get(gate, [TRIVIAL_TWIRL])
+        twirls = self._gate_twirls.get(gate, [self.TRIVIAL_TWIRL])
         choice = self._rng.choice(len(twirls))
         return twirls[choice]
 
