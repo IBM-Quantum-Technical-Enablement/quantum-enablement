@@ -12,7 +12,7 @@
 
 """Many-body localization (MBL) circuits.
 
-[1] Shtanko et.al. Uncovering Local Integrability in Quantum Many-Body Dynamics, 
+[1] Shtanko et.al. Uncovering Local Integrability in Quantum Many-Body Dynamics,
     https://arxiv.org/abs/2307.07552
 """
 

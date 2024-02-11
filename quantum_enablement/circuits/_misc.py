@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Miscellaneous tools and circuits."""
+
 
 from collections.abc import Collection
 
@@ -70,11 +72,11 @@ def build_random_basis_state(
         A random computational basis state quantum circuit.
     """
     favored_qubits = set(favored_qubits or {})
-    unfavored_qubits = [qubit for qubit in range(num_qubits) if not qubit in favored_qubits]
+    unfavored_qubits = [qubit for qubit in range(num_qubits) if qubit not in favored_qubits]
 
     rng = default_rng(seed)
     favored_qubits = rng.permutation(list(favored_qubits))
-    unfavored_qubits = rng.permutation(list(unfavored_qubits))
+    unfavored_qubits = rng.permutation(list(unfavored_qubits))  # type: ignore
     excited_qubits = concatenate([favored_qubits, unfavored_qubits])[:num_excitations]
 
     circuit = QuantumCircuit(num_qubits)
