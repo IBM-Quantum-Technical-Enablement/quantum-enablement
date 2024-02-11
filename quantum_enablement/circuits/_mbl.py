@@ -27,7 +27,7 @@ class MBLCircuit(QuantumCircuit):
     disorders vector (φ) with one entry per qubit. In 1D,
     θ < 0.16π ≈ 0.5 corresponds to the MBL regime; beyond such
     critical value the dynamics become ergodic (i.e. thermal).
-    Disorders are random on a qubit per qubit basis [1].
+    Disorders are random on a qubit by qubit basis [1].
 
     Args:
         num_qubits: number of qubits (needs to be even).
@@ -63,7 +63,7 @@ class MBLEvolution(QuantumCircuit):
     disorders vector (φ) with one entry per qubit. In 1D,
     θ < 0.16π ≈ 0.5 corresponds to the MBL regime; beyond such
     critical value the dynamics become ergodic (i.e. thermal).
-    Disorders are random on a qubit per qubit basis [1].
+    Disorders are random on a qubit by qubit basis [1].
 
     Args:
         num_qubits: number of qubits (needs to be even).
