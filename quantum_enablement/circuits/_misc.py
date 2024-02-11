@@ -23,7 +23,7 @@ from qiskit.circuit import ParameterVector
 ## COMPUTE-UNCOMPUTE
 ################################################################################
 def compute_uncompute(
-    circuit: QuantumCircuit, *, barrier: bool = False, inplace: bool = False
+    circuit: QuantumCircuit, *, barrier: bool = True, inplace: bool = False
 ) -> QuantumCircuit:
     """Build compute-uncompute version of input quantum circuit.
 
