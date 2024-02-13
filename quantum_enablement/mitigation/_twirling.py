@@ -19,9 +19,9 @@ from functools import singledispatch
 from itertools import product
 from warnings import warn
 
-from numpy import allclose, angle, eye, isclose, kron, matrix, pi
+from numpy import allclose, angle, eye, isclose, log2, matrix, pi
 from numpy.random import default_rng
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import ArrayLike
 from qiskit.circuit import Gate, QuantumRegister
 from qiskit.circuit.library import PauliGate
 from qiskit.circuit.library.standard_gates import get_standard_gate_name_mapping
@@ -30,7 +30,7 @@ from qiskit.transpiler import TransformationPass
 
 
 ################################################################################
-## PAULI TWIRL CLASS
+## PAULI TWIRL
 ################################################################################
 class PauliTwirl:
     """Pauli twirl class."""
@@ -118,12 +118,13 @@ class PauliTwirl:
 ################################################################################
 ## APPLY TWIRLS
 ################################################################################
-class TwoQubitPauliTwirl(TransformationPass):
-    """Pauli twirl unparameterized two-qubit gates in input circuit randomly.
+class PauliTwirlPass(TransformationPass):
+    """Pauli twirl gates in input circuit randomly.
+
+    Note: parametrized gates are not supported and will be skipped.
 
     Args:
-        target_gates: names of gates to twirl. If None, all unparameterized
-            two-qubit gates will be twirled.
+        target_gates: names of gates to twirl. If None, all gates will be twirled.
         seed: seed for random number generator.
 
     Notes:
@@ -157,39 +158,46 @@ class TwoQubitPauliTwirl(TransformationPass):
         """Check whether node should be included or not."""
         gate = node.op
         requested = gate.name in self._target_gates
-        if gate.num_qubits != 2:
-            if requested:
-                warn(f"Skipped unsupported non-two-qubit gate: '{gate.name}<{gate.num_qubits}>'.")
-            return False
         if gate.is_parameterized():
             if requested:
                 warn(f"Skipped unsupported parameterized gate: '{gate.name}({gate.params})'.")
             return False
-        return requested or not self._target_gates
+        no_requests = not self._target_gates
+        return requested or no_requests
 
     def _get_random_twirl(self, gate: Gate) -> PauliTwirl:
         """Get random twirl for the input gate."""
-        # TODO: cache
-        twirls = generate_pauli_twirls(gate)
+        twirls = generate_pauli_twirls(gate)  # TODO: cache
         return self._rng.choice(list(twirls))  # type: ignore
+
+
+class TwoQubitPauliTwirlPass(PauliTwirlPass):
+    """Pauli twirl two-qubit gates in input circuit randomly.
+
+    Note: parametrized gates are not supported and will be skipped.
+
+    Args:
+        target_gates: names of gates to twirl. If None, all two-qubit gates will be twirled.
+        seed: seed for random number generator.
+
+    Notes:
+        Adapted from the reference:
+        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
+    """
+
+    def _is_target_node(self, node: DAGOpNode) -> bool:
+        gate = node.op
+        requested = gate.name in self._target_gates
+        if gate.num_qubits != 2:
+            if requested:
+                warn(f"Skipped unsupported non-two-qubit gate: '{gate.name}<{gate.num_qubits}>'.")
+            return False
+        return super()._is_target_node(node)
 
 
 ################################################################################
 ## COMPUTE TWIRLS
 ################################################################################
-STANDARD_GATES = get_standard_gate_name_mapping()
-PAULI_MATRICES = {
-    "I": matrix([[1, 0], [0, 1]]),
-    "X": matrix([[0, 1], [1, 0]]),
-    "Y": matrix([[0, -1j], [1j, 0]]),
-    "Z": matrix([[1, 0], [0, -1]]),
-}
-TWO_QUBIT_PAULI_MATRICES = {
-    f"{p1}{p0}": kron(PAULI_MATRICES[p1], PAULI_MATRICES[p0])
-    for p0, p1 in product(PAULI_MATRICES.keys(), repeat=2)
-}
-
-
 @singledispatch
 def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
     """Generate Pauli twirls for input two-qubit unitary.
@@ -204,12 +212,14 @@ def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwir
         Adapted from the reference:
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
-    unitary = _validate_two_qubit_unitary(unitary)
-    for pre, post in product(TWO_QUBIT_PAULI_MATRICES, repeat=2):
-        twirled = TWO_QUBIT_PAULI_MATRICES[post] * unitary * TWO_QUBIT_PAULI_MATRICES[pre]
+    unitary = _validate_unitary_matrix(unitary)
+    num_qubits = int(log2(unitary.shape[0]))
+    n_qubit_paulis = ("".join(pauli) for pauli in product("IXYZ", repeat=num_qubits))
+    for pre, post in product(n_qubit_paulis, repeat=2):
+        twirled = PauliGate(post).to_matrix() * unitary * PauliGate(pre).to_matrix()
         check = twirled.H * unitary
         phase_factor = check[0, 0]
-        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(4)):
+        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(2**num_qubits)):
             yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
 
 
@@ -226,20 +236,24 @@ def _(unitary: Gate) -> Iterator[PauliTwirl]:
 
 @generate_pauli_twirls
 def _(unitary: str) -> Iterator[PauliTwirl]:
-    gate = STANDARD_GATES.get(unitary, None)
+    standard_gates = get_standard_gate_name_mapping()
+    gate = standard_gates.get(unitary, None)
     if gate is None:
         raise ValueError(f"Unitary '{unitary}' not found in standard set.")
     yield from generate_pauli_twirls(gate)
 
 
-def _validate_two_qubit_unitary(unitary: ArrayLike) -> NDArray:
+def _validate_unitary_matrix(unitary: ArrayLike) -> matrix:
     try:
         unitary = matrix(unitary)
     except (TypeError, ValueError) as error:
         raise TypeError(f"Invalid gate type '{type(unitary)}', expected 'ArrayLike'.") from error
-    if unitary.shape != (4, 4):
-        raise ValueError(f"Invalid unitary with shape {unitary.shape}, expected (4, 4) instead.")
-    if not allclose(unitary.H * unitary, eye(4)):
+    if unitary.shape[0] != unitary.shape[1]:
+        raise ValueError(f"Invalid unitary with rectangular shape {unitary.shape}.")
+    dimension = unitary.shape[0]
+    if not log2(dimension).is_integer():  # pylint: disable=no-member
+        raise ValueError(f"Invalid unitary dimension ({dimension}), expected int power of two.")
+    if not allclose(unitary.H * unitary, eye(dimension)):
         raise ValueError("Non-unitary matrix provided.")
     return unitary
 
