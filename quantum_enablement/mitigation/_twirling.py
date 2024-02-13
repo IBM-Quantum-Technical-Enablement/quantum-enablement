@@ -57,6 +57,13 @@ class PauliTwirl:
         phase = isclose(self.post, __value.phase)
         return pre and post and phase
 
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        pre = self.pre.params[0]
+        post = self.post.params[0]
+        phase = self.phase
+        return f"{cls_name}({pre=}, {post=}, {phase=})"
+
     @property
     def pre(self) -> PauliGate:
         """Pre-operation in the twirl."""
@@ -235,7 +242,7 @@ def _(unitary: Gate) -> Iterator[PauliTwirl]:
         yield from generate_pauli_twirls(unitary)
 
 
-@generate_pauli_twirls
+@generate_pauli_twirls.register(str)
 def _(unitary: str) -> Iterator[PauliTwirl]:
     standard_gates = get_standard_gate_name_mapping()
     gate = standard_gates.get(unitary, None)
