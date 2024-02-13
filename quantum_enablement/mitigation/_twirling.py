@@ -30,7 +30,7 @@ from qiskit.transpiler import TransformationPass
 
 
 ################################################################################
-## PAULI TWIRL
+## TWIRL DATA
 ################################################################################
 class PauliTwirl:
     """Pauli twirl class."""
@@ -231,7 +231,7 @@ def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwir
             yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
 
 
-@generate_pauli_twirls
+@generate_pauli_twirls.register
 def _(unitary: Gate) -> Iterator[PauliTwirl]:
     if unitary.name in PAULI_TWIRLS:
         yield from PAULI_TWIRLS.get(unitary.name)
@@ -242,7 +242,7 @@ def _(unitary: Gate) -> Iterator[PauliTwirl]:
         yield from generate_pauli_twirls(unitary)
 
 
-@generate_pauli_twirls.register(str)
+@generate_pauli_twirls.register
 def _(unitary: str) -> Iterator[PauliTwirl]:
     standard_gates = get_standard_gate_name_mapping()
     gate = standard_gates.get(unitary, None)
@@ -255,7 +255,7 @@ def _validate_unitary_matrix(unitary: ArrayLike) -> matrix:
     try:
         unitary = matrix(unitary)
     except (TypeError, ValueError) as error:
-        raise TypeError(f"Invalid gate type '{type(unitary)}', expected 'ArrayLike'.") from error
+        raise TypeError(f"Invalid unitary type '{type(unitary)}', expected 'ArrayLike'.") from error
     if unitary.shape[0] != unitary.shape[1]:
         raise ValueError(f"Invalid unitary with rectangular shape {unitary.shape}.")
     dimension = unitary.shape[0]
