@@ -19,7 +19,7 @@ from functools import singledispatch
 from itertools import product
 from warnings import warn
 
-from numpy import allclose, angle, eye, isclose, log2, matrix, pi
+from numpy import allclose, angle, eye, isclose, matrix, pi
 from numpy.random import default_rng
 from numpy.typing import ArrayLike
 from qiskit.circuit import Gate, QuantumRegister
@@ -213,13 +213,14 @@ def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwir
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
     unitary = _validate_unitary_matrix(unitary)
-    num_qubits = int(log2(unitary.shape[0]))
+    dimension = unitary.shape[0]
+    num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
     n_qubit_paulis = ("".join(pauli) for pauli in product("IXYZ", repeat=num_qubits))
     for pre, post in product(n_qubit_paulis, repeat=2):
         twirled = PauliGate(post).to_matrix() * unitary * PauliGate(pre).to_matrix()
         check = twirled.H * unitary
         phase_factor = check[0, 0]
-        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(2**num_qubits)):
+        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(dimension)):
             yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
 
 
