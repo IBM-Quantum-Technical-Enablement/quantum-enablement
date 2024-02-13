@@ -251,8 +251,8 @@ def _validate_unitary_matrix(unitary: ArrayLike) -> matrix:
     if unitary.shape[0] != unitary.shape[1]:
         raise ValueError(f"Invalid unitary with rectangular shape {unitary.shape}.")
     dimension = unitary.shape[0]
-    if not log2(dimension).is_integer():  # pylint: disable=no-member
-        raise ValueError(f"Invalid unitary dimension ({dimension}), expected int power of two.")
+    if dimension & (dimension - 1) != 0:  # Note: integer power of two
+        raise ValueError(f"Invalid unitary dimension ({dimension}), expected integer power of two.")
     if not allclose(unitary.H * unitary, eye(dimension)):
         raise ValueError("Non-unitary matrix provided.")
     return unitary
