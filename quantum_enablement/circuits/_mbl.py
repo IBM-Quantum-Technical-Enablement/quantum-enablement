@@ -10,18 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Many-body localization (MBL) circuits.
+"""Many-body localization (MBL) quantum circuits.
 
 [1] Shtanko et.al. Uncovering Local Integrability in Quantum Many-Body Dynamics,
     https://arxiv.org/abs/2307.07552
 """
 
+
 from numpy import pi
 from qiskit.circuit import Parameter, ParameterVector, QuantumCircuit
 
 
-class MBLCircuit(QuantumCircuit):
-    """Parameterized 1D MBL quantum circuit.
+class MBLChainCircuit(QuantumCircuit):
+    """Parameterized MBL chain (i.e. 1D) quantum circuit.
 
     Parameters correspond to interaction strength (θ), and
     disorders vector (φ) with one entry per qubit. In 1D,
@@ -30,7 +31,7 @@ class MBLCircuit(QuantumCircuit):
     Disorders are random on a qubit by qubit basis [1].
 
     Args:
-        num_qubits: number of qubits (needs to be even).
+        num_qubits: number of qubits (must be even).
         depth: two-qubit depth.
         barriers: if True adds barriers between layers.
         measurements: if True adds measurements at the end.
@@ -45,19 +46,19 @@ class MBLCircuit(QuantumCircuit):
     ) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
         depth = _validate_depth(depth)
-        super().__init__(num_qubits, name=f"MBL<{num_qubits}, {depth}>")
+        super().__init__(num_qubits, name=f"MBLChain<{num_qubits}, {depth}>")
 
         self.x(range(1, num_qubits, 2))  # TODO: add optional initial state arg
         if barriers:
             self.barrier()
-        evolution = MBLEvolution(num_qubits, depth, barriers=barriers)
+        evolution = MBLChainEvolution(num_qubits, depth, barriers=barriers)
         self.compose(evolution, inplace=True)
         if measurements:
             self.measure_all(inplace=True, add_bits=True)
 
 
-class MBLEvolution(QuantumCircuit):
-    """Parameterized 1D MBL evolution quantum circuit.
+class MBLChainEvolution(QuantumCircuit):
+    """Parameterized MBL (i.e. 1D) evolution quantum circuit.
 
     Parameters correspond to interaction strength (θ), and
     disorders vector (φ) with one entry per qubit. In 1D,
@@ -66,7 +67,7 @@ class MBLEvolution(QuantumCircuit):
     Disorders are random on a qubit by qubit basis [1].
 
     Args:
-        num_qubits: number of qubits (needs to be even).
+        num_qubits: number of qubits (must be even).
         depth: two-qubit depth.
         barriers: if True adds barriers between layers.
 
@@ -78,7 +79,7 @@ class MBLEvolution(QuantumCircuit):
     def __init__(self, num_qubits: int, depth: int, *, barriers: bool = False) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
         depth = _validate_depth(depth)
-        super().__init__(num_qubits, name=f"MBL-Evolution<{num_qubits}, {depth}>")
+        super().__init__(num_qubits, name=f"MBLChainEvolution<{num_qubits}, {depth}>")
 
         theta = Parameter("θ")
         phis = ParameterVector("φ", num_qubits)

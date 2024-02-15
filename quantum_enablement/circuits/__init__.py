@@ -12,10 +12,10 @@
 
 """Quantum circuit library and tools."""
 
-from ._mbl import MBLCircuit
+from ._mbl import MBLChainCircuit
 from ._misc import compute_uncompute
 
 __all__ = [
     "compute_uncompute",
-    "MBLCircuit",
+    "MBLChainCircuit",
 ]
