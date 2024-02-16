@@ -12,7 +12,7 @@
 
 """Error mitigation tools and techniques."""
 
-from ._twirling import TwoQubitPauliTwirlPass
+from ._twirl import TwoQubitPauliTwirlPass
 
 __all__ = [
     "TwoQubitPauliTwirlPass",
