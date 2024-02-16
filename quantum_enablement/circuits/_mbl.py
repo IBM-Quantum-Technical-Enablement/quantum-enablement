@@ -45,7 +45,7 @@ class MBLChainCircuit(QuantumCircuit):
         self, num_qubits: int, depth: int, *, barriers: bool = False, measurements: bool = False
     ) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
-        depth = _validate_depth(depth)
+        depth = _validate_mbl_depth(depth)
         super().__init__(num_qubits, name=f"MBLChain<{num_qubits}, {depth}>")
 
         self.x(range(1, num_qubits, 2))  # TODO: add optional initial state arg
@@ -78,7 +78,7 @@ class MBLChainEvolution(QuantumCircuit):
 
     def __init__(self, num_qubits: int, depth: int, *, barriers: bool = False) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
-        depth = _validate_depth(depth)
+        depth = _validate_mbl_depth(depth)
         super().__init__(num_qubits, name=f"MBLChainEvolution<{num_qubits}, {depth}>")
 
         theta = Parameter("θ")
@@ -106,10 +106,12 @@ def _validate_mbl_num_qubits(num_qubits: int) -> int:
     return num_qubits
 
 
-def _validate_depth(depth: int) -> int:
+def _validate_mbl_depth(depth: int) -> int:
     """Validate depth."""
     if not isinstance(depth, int):
         raise TypeError(f"Invalid depth type '{type(depth)}', expected 'int'.")
     if depth < 0:
         raise ValueError(f"Depth ({depth}) must be positive.")
+    if depth % 2:
+        raise ValueError("Depth must be even.")
     return depth
