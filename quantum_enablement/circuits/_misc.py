@@ -18,7 +18,6 @@ from collections.abc import Collection
 from numpy import concatenate
 from numpy.random import default_rng
 from qiskit import QuantumCircuit
-from qiskit.circuit import ParameterVector
 
 
 ################################################################################
@@ -72,7 +71,7 @@ def build_random_basis_state(
         A random computational basis state quantum circuit.
     """
     favored_qubits = set(favored_qubits or {})
-    unfavored_qubits = [qubit for qubit in range(num_qubits) if qubit not in favored_qubits]
+    unfavored_qubits = (qubit for qubit in range(num_qubits) if qubit not in favored_qubits)
 
     rng = default_rng(seed)
     favored_qubits = rng.permutation(list(favored_qubits))
@@ -81,51 +80,4 @@ def build_random_basis_state(
 
     circuit = QuantumCircuit(num_qubits)
     circuit.x(excited_qubits)
-    return circuit
-
-
-################################################################################
-## QAOA
-################################################################################
-def build_qaoa_circuit(
-    num_qubits: int,
-    depth: int,
-    *,
-    measurements: bool = True,
-    barriers: bool = False,
-) -> QuantumCircuit:
-    """Build parameterized QAOA quantum circuit.
-
-    Args:
-        num_qubits: number of qubits.
-        depth: two-qubit depth (needs to be even).
-        measurements: if True adds measurements at the end.
-        barriers: if True adds barriers between layers.
-
-    Returns:
-        A dense QAOA quantum circuit for a linear, non-cyclic, graph
-        with cost parameter-vector γ, and mixer parameter-vector β.
-    """
-    if num_qubits <= 2:
-        raise ValueError("Number of qubits must be greater than two.")
-    if depth % 2 != 0:
-        raise ValueError("Depth must be even.")
-
-    gammas = ParameterVector("γ", depth // 2)
-    betas = ParameterVector("β", depth // 2)
-
-    circuit = QuantumCircuit(num_qubits)
-    circuit.h(range(num_qubits))
-    for layer in range(depth // 2):
-        if barriers:
-            circuit.barrier()
-        for qubit in range(0, num_qubits - 1, 2):
-            circuit.rzz(gammas[layer], qubit, qubit + 1)
-        for qubit in range(1, num_qubits - 1, 2):
-            circuit.rzz(gammas[layer], qubit, qubit + 1)
-        for qubit in range(num_qubits):
-            circuit.rx(betas[layer], qubit)
-
-    if measurements:
-        circuit.measure_all()
     return circuit
