@@ -22,7 +22,7 @@ from qiskit.circuit import Parameter, ParameterVector, QuantumCircuit
 
 
 class MBLChainCircuit(QuantumCircuit):
-    """Parameterized MBL chain (i.e. 1D) quantum circuit.
+    """Parameterized MBL non-periodic chain (i.e. 1D) quantum circuit.
 
     Parameters correspond to interaction strength (θ), and
     disorders vector (φ) with one entry per qubit. In 1D,
@@ -58,7 +58,7 @@ class MBLChainCircuit(QuantumCircuit):
 
 
 class MBLChainEvolution(QuantumCircuit):
-    """Parameterized MBL (i.e. 1D) evolution quantum circuit.
+    """Parameterized MBL non-periodic chain (i.e. 1D) evolution quantum circuit.
 
     Parameters correspond to interaction strength (θ), and
     disorders vector (φ) with one entry per qubit. In 1D,
@@ -107,7 +107,7 @@ def _validate_mbl_num_qubits(num_qubits: int) -> int:
 
 
 def _validate_mbl_depth(depth: int) -> int:
-    """Validate depth."""
+    """Validate depth for MBL circuits."""
     if not isinstance(depth, int):
         raise TypeError(f"Invalid depth type '{type(depth)}', expected 'int'.")
     if depth < 0:
