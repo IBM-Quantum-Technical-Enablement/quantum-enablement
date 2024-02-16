@@ -27,7 +27,8 @@ class QAOALineCircuit(QuantumCircuit):
 
     The cost parameter-vector is labeled γ, and the mixer
     parameter-vector β. Overall, there will be one parameter per
-    unit two-qubit depth (i.e. half in γ and half in ß) [1].
+    unit of two-qubit depth: half in γ and half in ß [1].
+    Weights in the generating max-cut graph are all equal to one.
 
     Args:
         num_qubits: number of qubits (must be even).
