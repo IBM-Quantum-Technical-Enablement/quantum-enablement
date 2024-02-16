@@ -13,10 +13,6 @@
 """Miscellaneous tools and circuits."""
 
 
-from collections.abc import Collection
-
-from numpy import concatenate
-from numpy.random import default_rng
 from qiskit import QuantumCircuit
 
 
@@ -45,39 +41,4 @@ def compute_uncompute(
     if barrier:
         circuit.barrier()
     circuit.compose(original.inverse(), inplace=True)
-    return circuit
-
-
-################################################################################
-## RANDOM COMPUTATIONAL BASIS STATE
-################################################################################
-# TODO: QuantumCircuit subclass
-def build_random_basis_state(
-    num_qubits: int,
-    num_excitations: int,
-    *,
-    favored_qubits: Collection[int] | None = None,
-    seed: int | None = None,
-) -> QuantumCircuit:
-    """Build a random computational basis state quantum circuit.
-
-    Args:
-        num_qubits: number of qubits (needs to be even).
-        num_excitations: number of qubits in the excited (1) state.
-        favored_qubits: qubits to favor when locating random excitations.
-        seed: to randomly choose excitations.
-
-    Returns:
-        A random computational basis state quantum circuit.
-    """
-    favored_qubits = set(favored_qubits or {})
-    unfavored_qubits = (qubit for qubit in range(num_qubits) if qubit not in favored_qubits)
-
-    rng = default_rng(seed)
-    favored_qubits = rng.permutation(list(favored_qubits))
-    unfavored_qubits = rng.permutation(list(unfavored_qubits))  # type: ignore
-    excited_qubits = concatenate([favored_qubits, unfavored_qubits])[:num_excitations]
-
-    circuit = QuantumCircuit(num_qubits)
-    circuit.x(excited_qubits)
     return circuit
