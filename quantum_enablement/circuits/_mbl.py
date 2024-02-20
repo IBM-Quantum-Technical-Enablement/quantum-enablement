@@ -98,7 +98,7 @@ class MBLChainEvolution(QuantumCircuit):
 def _validate_mbl_num_qubits(num_qubits: int) -> int:
     """Validate number of qubits for MBL circuits."""
     if not isinstance(num_qubits, int):
-        raise TypeError(f"Invalid num. qubits type '{type(num_qubits)}', expected 'int'.")
+        raise TypeError(f"Invalid num. qubits type {type(num_qubits)}, expected <int>.")
     if num_qubits <= 2:
         raise ValueError(f"Number of qubits ({num_qubits}) must be greater than two.")
     if num_qubits % 2:
@@ -109,7 +109,7 @@ def _validate_mbl_num_qubits(num_qubits: int) -> int:
 def _validate_mbl_depth(depth: int) -> int:
     """Validate depth for MBL circuits."""
     if not isinstance(depth, int):
-        raise TypeError(f"Invalid depth type '{type(depth)}', expected 'int'.")
+        raise TypeError(f"Invalid depth type {type(depth)}, expected <int>.")
     if depth < 0:
         raise ValueError(f"Depth ({depth}) must be positive.")
     if depth % 2:

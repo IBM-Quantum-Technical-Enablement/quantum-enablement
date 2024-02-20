@@ -34,7 +34,7 @@ def compute_uncompute(
         Compute-uncompute version of input quantum circuit with optional barrier.
     """
     if not isinstance(circuit, QuantumCircuit):
-        raise TypeError(f"Invalid circuit type '{type(circuit)}', expected 'QuantumCircuit'.")
+        raise TypeError(f"Invalid circuit type {type(circuit)}, expected <QuantumCircuit>.")
     original = circuit
     if not inplace:
         circuit = original.copy()

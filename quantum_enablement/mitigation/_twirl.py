@@ -60,7 +60,7 @@ class PauliTwirl:
             return gate
         if isinstance(gate, str):
             return PauliGate(gate)
-        raise TypeError(f"Invalid gate type '{type(gate)}', expected 'PauliGate'.")
+        raise TypeError(f"Invalid gate type {type(gate)}, expected <PauliGate>.")
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, type(self)):
@@ -126,7 +126,7 @@ class PauliTwirl:
     def _validate_node(self, node: DAGOpNode) -> DAGOpNode:
         """Validate node."""
         if not isinstance(node, DAGOpNode):
-            raise TypeError(f"Invalid node type '{type(node)}', expected 'DAGOpNode'.")
+            raise TypeError(f"Invalid node type {type(node)}, expected <DAGOpNode>.")
         if node.op.num_qubits != self.num_qubits:
             raise ValueError(
                 f"Number of qubits in input node ({node.op.num_qubits}) "
