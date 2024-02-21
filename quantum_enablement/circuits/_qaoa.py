@@ -46,7 +46,10 @@ class QAOALineCircuit(QuantumCircuit):
     ) -> None:
         num_qubits = _validate_qaoa_num_qubits(num_qubits)
         depth = _validate_qaoa_depth(depth)
-        super().__init__(num_qubits, name=f"QAOALine<{num_qubits}, {depth}>")
+        barriers = bool(barriers)
+        measurements = bool(measurements)
+
+        super().__init__(num_qubits, name=f"QAOALineCircuit<{num_qubits}, {depth}>")
 
         gammas = ParameterVector("γ", depth // 2)
         betas = ParameterVector("β", depth // 2)
