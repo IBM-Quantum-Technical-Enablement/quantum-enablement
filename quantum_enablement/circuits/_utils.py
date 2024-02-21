@@ -35,10 +35,10 @@ def compute_uncompute(
     """
     if not isinstance(circuit, QuantumCircuit):
         raise TypeError(f"Invalid circuit type {type(circuit)}, expected <QuantumCircuit>.")
-    original = circuit
+    inverse = circuit.inverse()
     if not inplace:
-        circuit = original.copy()
+        circuit = circuit.copy()
     if barrier:
         circuit.barrier()
-    circuit.compose(original.inverse(), inplace=True)
+    circuit.compose(inverse, inplace=True)
     return circuit
