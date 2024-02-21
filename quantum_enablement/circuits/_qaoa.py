@@ -85,5 +85,5 @@ def _validate_qaoa_depth(depth: int) -> int:
     if depth < 0:
         raise ValueError(f"Depth ({depth}) must be positive.")
     if depth % 2:
-        raise ValueError("Depth must be even.")
+        raise ValueError(f"Depth ({depth}) must be even.")
     return depth
