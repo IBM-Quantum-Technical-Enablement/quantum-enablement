@@ -46,11 +46,12 @@ class MBLChainCircuit(QuantumCircuit):
     ) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
         depth = _validate_mbl_depth(depth)
-        super().__init__(num_qubits, name=f"MBLChain<{num_qubits}, {depth}>")
+        barriers = bool(barriers)
+        measurements = bool(measurements)
+
+        super().__init__(num_qubits, name=f"MBLChainCircuit<{num_qubits}, {depth}>")
 
         self.x(range(1, num_qubits, 2))  # TODO: add optional initial state arg
-        if barriers:
-            self.barrier()
         evolution = MBLChainEvolution(num_qubits, depth, barriers=barriers)
         self.compose(evolution, inplace=True)
         if measurements:
@@ -79,13 +80,16 @@ class MBLChainEvolution(QuantumCircuit):
     def __init__(self, num_qubits: int, depth: int, *, barriers: bool = False) -> None:
         num_qubits = _validate_mbl_num_qubits(num_qubits)
         depth = _validate_mbl_depth(depth)
+        barriers = bool(barriers)
+
         super().__init__(num_qubits, name=f"MBLChainEvolution<{num_qubits}, {depth}>")
 
         theta = Parameter("θ")
         phis = ParameterVector("φ", num_qubits)
+
         for layer in range(depth):
             layer_parity = layer % 2
-            if barriers and layer != 0:
+            if barriers:
                 self.barrier()
             for qubit in range(layer_parity, num_qubits - 1, 2):
                 self.cz(qubit, qubit + 1)
@@ -113,5 +117,5 @@ def _validate_mbl_depth(depth: int) -> int:
     if depth < 0:
         raise ValueError(f"Depth ({depth}) must be positive.")
     if depth % 2:
-        raise ValueError("Depth must be even.")
+        raise ValueError(f"Depth ({depth}) must be even.")
     return depth
