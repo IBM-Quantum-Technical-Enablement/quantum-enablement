@@ -19,6 +19,7 @@ class Local2qAmplifier(TransformationPass):
                 fold_dag.add_qreg(qreg=qreg)
                 for _ in range(self.noise_factor):
                     fold_dag.apply_operation_back(node.op, [qreg[0], qreg[1]])
+                    fold_dag.apply_operation_back(node.op, [qreg[0], qreg[1]])
                 
                 dag.substitute_node_with_dag(node, fold_dag)
 
