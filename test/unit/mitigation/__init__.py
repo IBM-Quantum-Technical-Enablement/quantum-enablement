@@ -10,10 +10,4 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Error mitigation tools and techniques."""
-
-from ._twirling import TwoQubitPauliTwirlPass
-
-__all__ = [
-    "TwoQubitPauliTwirlPass",
-]
+"""Unit testing for mitigation module."""

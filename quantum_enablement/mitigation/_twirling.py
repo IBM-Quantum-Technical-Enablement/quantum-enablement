@@ -19,7 +19,7 @@ from functools import singledispatch
 from itertools import product
 from warnings import warn
 
-from numpy import allclose, angle, exp, eye, isclose, matrix, pi
+from numpy import allclose, angle, array, exp, eye, isclose, ndarray, pi
 from numpy.random import default_rng
 from numpy.typing import ArrayLike
 from qiskit.circuit import Gate, QuantumRegister
@@ -52,10 +52,13 @@ class PauliTwirl:
         self._pre: PauliGate = self._validate_gate(pre)
         self._post: PauliGate = self._validate_gate(post)
         self._phase: float = float(phase)
-        if self.pre.num_qubits != self.post.num_qubits:
-            raise ValueError("Pre and post operations don't apply to the same number of qubits.")
+        if self.pre.num_qubits != self.post.num_qubits:  # pylint: disable=no-member
+            raise ValueError(
+                "Twirling pre and post operations don't apply to the same number of qubits."
+            )
 
     def _validate_gate(self, gate: PauliGate | str) -> PauliGate:
+        # TODO: handle phase
         if isinstance(gate, PauliGate):
             return gate
         if isinstance(gate, str):
@@ -67,13 +70,13 @@ class PauliTwirl:
             return False
         pre = self.pre == __value.pre
         post = self.post == __value.post
-        phase = isclose(self.post, __value.phase)
-        return pre and post and phase
+        phase = isclose(self.phase, __value.phase)
+        return pre and post and phase  # type: ignore
 
     def __repr__(self) -> str:
         cls_name = type(self).__name__
-        pre = self.pre.params[0]
-        post = self.post.params[0]
+        pre = self.pre.params[0]  # pylint: disable=no-member
+        post = self.post.params[0]  # pylint: disable=no-member
         phase = self.phase
         return f"{cls_name}({pre=}, {post=}, {phase=})"
 
@@ -134,29 +137,78 @@ class PauliTwirl:
             )
         return node
 
-    def apply_to_unitary(self, unitary: ArrayLike | Gate | str) -> matrix:
+    def apply_to_unitary(self, unitary: ArrayLike | Gate | str) -> ndarray:
         """Apply twirl to input unitary."""
-        unitary = self._validate_unitary_matrix(unitary)
-        pre = self.pre.to_matrix()
-        post = self.post.to_matrix()
+        unitary = self._validate_unitary(unitary)
+        pre = self.pre.to_matrix()  # pylint: disable=no-member
+        post = self.post.to_matrix()  # pylint: disable=no-member
         phase_factor = exp(1j * self.phase)
-        return (post * unitary * pre) * phase_factor
+        return (post @ unitary @ pre) * phase_factor
 
-    def _validate_unitary_matrix(self, unitary) -> matrix:
-        unitary = _validate_unitary_matrix(unitary)
+    def _validate_unitary(self, unitary) -> ndarray:
+        unitary = _validate_unitary(unitary)
         dimension = unitary.shape[0]
         num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
         if num_qubits != self.num_qubits:
             raise ValueError(
-                f"Number of qubits in input unitary ({unitary.num_qubits}) "
+                f"Number of qubits in input unitary ({num_qubits}) "
                 f"does not match twirl's number of qubits ({self.num_qubits})."
             )
         return unitary
 
     def preserves_unitary(self, unitary: ArrayLike | Gate | str) -> bool:
         """Checks whether the twirl preserves the input unitary."""
+        unitary = self._validate_unitary(unitary)
         twirled = self.apply_to_unitary(unitary)
-        return allclose(twirled.H * unitary, eye(2**self.num_qubits))
+        return allclose(twirled.conj().T @ unitary, eye(2**self.num_qubits))
+
+
+################################################################################
+## COMPUTE TWIRLS
+################################################################################
+@singledispatch
+def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
+    """Generate Pauli twirls for input two-qubit unitary.
+
+    Args:
+        unitary: the two-qubit unitary to compute twirls for.
+
+    Yields:
+        Tuples of possible twirls. Qubit order is given by the input.
+
+    Notes:
+        Adapted from the reference:
+        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
+    """
+    unitary = _validate_unitary(unitary)
+    dimension = unitary.shape[0]
+    num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
+    n_qubit_paulis = ("".join(pauli) for pauli in product("IXYZ", repeat=num_qubits))
+    for pre, post in product(n_qubit_paulis, repeat=2):
+        twirl = PauliTwirl(pre, post, phase=0.0)
+        twirled = twirl.apply_to_unitary(unitary)  # TODO: remove overhead in revalidation
+        check = twirled.conj().T @ unitary
+        phase_factor = check[0, 0]
+        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(dimension)):
+            yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
+
+
+@generate_pauli_twirls.register
+def _(unitary: Gate) -> Iterator[PauliTwirl]:
+    if unitary.name in PAULI_TWIRLS:
+        yield from PAULI_TWIRLS.get(unitary.name)
+    else:
+        unitary = _validate_unitary(unitary)
+        yield from generate_pauli_twirls(unitary)
+
+
+@generate_pauli_twirls.register
+def _(unitary: str) -> Iterator[PauliTwirl]:
+    if unitary in PAULI_TWIRLS:
+        yield from PAULI_TWIRLS.get(unitary)
+    else:
+        unitary = _validate_unitary(unitary)  # type: ignore
+        yield from generate_pauli_twirls(unitary)
 
 
 ################################################################################
@@ -240,90 +292,43 @@ class TwoQubitPauliTwirlPass(PauliTwirlPass):
 
 
 ################################################################################
-## COMPUTE TWIRLS
-################################################################################
-@singledispatch
-def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
-    """Generate Pauli twirls for input two-qubit unitary.
-
-    Args:
-        unitary: the two-qubit unitary to compute twirls for.
-
-    Yields:
-        Tuples of possible twirls. Qubit order is given by the input.
-
-    Notes:
-        Adapted from the reference:
-        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
-    """
-    unitary = _validate_unitary_matrix(unitary)
-    dimension = unitary.shape[0]
-    num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
-    n_qubit_paulis = ("".join(pauli) for pauli in product("IXYZ", repeat=num_qubits))
-    for pre, post in product(n_qubit_paulis, repeat=2):
-        twirl = PauliTwirl(pre, post, phase=0.0)
-        twirled = twirl.apply_to_unitary(unitary)  # TODO: remove overhead in revalidation
-        check = twirled.H * unitary
-        phase_factor = check[0, 0]
-        if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(dimension)):
-            yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
-
-
-@generate_pauli_twirls.register
-def _(unitary: Gate) -> Iterator[PauliTwirl]:
-    if unitary.name in PAULI_TWIRLS:
-        yield from PAULI_TWIRLS.get(unitary.name)
-    else:
-        unitary = _validate_unitary_matrix(unitary)
-        yield from generate_pauli_twirls(unitary)
-
-
-@generate_pauli_twirls.register
-def _(unitary: str) -> Iterator[PauliTwirl]:
-    if unitary in PAULI_TWIRLS:
-        yield from PAULI_TWIRLS.get(unitary)
-    else:
-        unitary = _validate_unitary_matrix(unitary)  # type: ignore
-        yield from generate_pauli_twirls(unitary)
-
-
-################################################################################
 ## VALIDATION
 ################################################################################
 @singledispatch
-def _validate_unitary_matrix(unitary: ArrayLike | Gate | str) -> matrix:
-    try:
-        unitary = matrix(unitary)
-    except (TypeError, ValueError) as error:
-        raise TypeError(f"Invalid unitary type '{type(unitary)}'.") from error
-    return _validate_unitary_matrix(unitary)
+def _validate_unitary(unitary: ArrayLike | Gate | str) -> ndarray:
+    unitary = array(unitary)
+    if unitary.dtype.kind not in "buifc":
+        raise TypeError(f"Invalid unitary type {type(unitary)}, expected <ArrayLike | Gate | str>.")
+    return _validate_unitary(unitary)
 
 
-@_validate_unitary_matrix.register
-def _(unitary: matrix) -> matrix:
+@_validate_unitary.register
+def _(unitary: ndarray) -> ndarray:
+    if unitary.ndim != 2:
+        raise ValueError(f"Invalid unitary matrix with {unitary.ndim} axes, expected 2.")
     if unitary.shape[0] != unitary.shape[1]:
-        raise ValueError(f"Invalid unitary with rectangular shape {unitary.shape}.")
+        raise ValueError(f"Invalid unitary matrix with non-square shape {unitary.shape}.")
     dimension = unitary.shape[0]
     if dimension & (dimension - 1) != 0:  # Note: integer power of two
         raise ValueError(f"Invalid unitary dimension ({dimension}), expected integer power of two.")
-    if not allclose(unitary.H * unitary, eye(dimension)):
-        raise ValueError("Non-unitary matrix provided.")
+    if not allclose(unitary.conj().T @ unitary, eye(dimension)):
+        raise ValueError("Invalid matrix, expected unitary.")
     return unitary
 
 
-@_validate_unitary_matrix.register
-def _(unitary: Gate) -> matrix:
+@_validate_unitary.register
+def _(unitary: Gate) -> ndarray:
     if unitary.is_parameterized():
         raise ValueError("Twirls cannot be computed for parametrized gates.")
-    return _validate_unitary_matrix(unitary.to_matrix())
+    return unitary.to_matrix()  # Note: assuming gate object represents a unitary
 
 
-@_validate_unitary_matrix.register
-def _(unitary: str) -> matrix:
+@_validate_unitary.register
+def _(unitary: str) -> ndarray:
     gate = STANDARD_GATES.get(unitary, None)
     if gate is None:
         raise ValueError(f"Unitary '{unitary}' not found in standard set.")
-    return _validate_unitary_matrix(gate)
+    return _validate_unitary(gate)
 
 
 ################################################################################
@@ -331,26 +336,26 @@ def _(unitary: str) -> matrix:
 ################################################################################
 CH_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="YI", post="YZ", phase=0.0),
     PauliTwirl(pre="IZ", post="IZ", phase=0.0),
+    PauliTwirl(pre="YI", post="YZ", phase=0.0),
     PauliTwirl(pre="YZ", post="YI", phase=0.0),
 )
 CS_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="ZI", post="ZI", phase=0.0),
     PauliTwirl(pre="IZ", post="IZ", phase=0.0),
+    PauliTwirl(pre="ZI", post="ZI", phase=0.0),
     PauliTwirl(pre="ZZ", post="ZZ", phase=0.0),
 )
 CSDG_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="ZI", post="ZI", phase=0.0),
     PauliTwirl(pre="IZ", post="IZ", phase=0.0),
+    PauliTwirl(pre="ZI", post="ZI", phase=0.0),
     PauliTwirl(pre="ZZ", post="ZZ", phase=0.0),
 )
 CSX_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="XI", post="XI", phase=0.0),
     PauliTwirl(pre="IZ", post="IZ", phase=0.0),
+    PauliTwirl(pre="XI", post="XI", phase=0.0),
     PauliTwirl(pre="XZ", post="XZ", phase=0.0),
 )
 CX_PAULI_TWIRLS = (
@@ -373,20 +378,20 @@ CX_PAULI_TWIRLS = (
 )
 CY_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="XI", post="XZ", phase=0.0),
-    PauliTwirl(pre="YI", post="YI", phase=0.0),
-    PauliTwirl(pre="ZI", post="ZZ", phase=0.0),
     PauliTwirl(pre="IX", post="YX", phase=0.0),
-    PauliTwirl(pre="XX", post="ZY", phase=pi),
-    PauliTwirl(pre="YX", post="IX", phase=0.0),
-    PauliTwirl(pre="ZX", post="XY", phase=0.0),
     PauliTwirl(pre="IY", post="YY", phase=0.0),
-    PauliTwirl(pre="XY", post="ZX", phase=0.0),
-    PauliTwirl(pre="YY", post="IY", phase=0.0),
-    PauliTwirl(pre="ZY", post="XX", phase=pi),
     PauliTwirl(pre="IZ", post="IZ", phase=0.0),
+    PauliTwirl(pre="XI", post="XZ", phase=0.0),
+    PauliTwirl(pre="XX", post="ZY", phase=pi),
+    PauliTwirl(pre="XY", post="ZX", phase=0.0),
     PauliTwirl(pre="XZ", post="XI", phase=0.0),
+    PauliTwirl(pre="YI", post="YI", phase=0.0),
+    PauliTwirl(pre="YX", post="IX", phase=0.0),
+    PauliTwirl(pre="YY", post="IY", phase=0.0),
     PauliTwirl(pre="YZ", post="YZ", phase=0.0),
+    PauliTwirl(pre="ZI", post="ZZ", phase=0.0),
+    PauliTwirl(pre="ZX", post="XY", phase=0.0),
+    PauliTwirl(pre="ZY", post="XX", phase=pi),
     PauliTwirl(pre="ZZ", post="ZI", phase=0.0),
 )
 CZ_PAULI_TWIRLS = (
@@ -409,20 +414,20 @@ CZ_PAULI_TWIRLS = (
 )
 DCX_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="XI", post="XX", phase=0.0),
-    PauliTwirl(pre="YI", post="XY", phase=0.0),
-    PauliTwirl(pre="ZI", post="IZ", phase=0.0),
     PauliTwirl(pre="IX", post="XI", phase=0.0),
-    PauliTwirl(pre="XX", post="IX", phase=0.0),
-    PauliTwirl(pre="YX", post="IY", phase=0.0),
-    PauliTwirl(pre="ZX", post="XZ", phase=0.0),
     PauliTwirl(pre="IY", post="YZ", phase=0.0),
-    PauliTwirl(pre="XY", post="ZY", phase=0.0),
-    PauliTwirl(pre="YY", post="ZX", phase=pi),
-    PauliTwirl(pre="ZY", post="YI", phase=0.0),
     PauliTwirl(pre="IZ", post="ZZ", phase=0.0),
+    PauliTwirl(pre="XI", post="XX", phase=0.0),
+    PauliTwirl(pre="XX", post="IX", phase=0.0),
+    PauliTwirl(pre="XY", post="ZY", phase=0.0),
     PauliTwirl(pre="XZ", post="YY", phase=pi),
+    PauliTwirl(pre="YI", post="XY", phase=0.0),
+    PauliTwirl(pre="YX", post="IY", phase=0.0),
+    PauliTwirl(pre="YY", post="ZX", phase=pi),
     PauliTwirl(pre="YZ", post="YX", phase=0.0),
+    PauliTwirl(pre="ZI", post="IZ", phase=0.0),
+    PauliTwirl(pre="ZX", post="XZ", phase=0.0),
+    PauliTwirl(pre="ZY", post="YI", phase=0.0),
     PauliTwirl(pre="ZZ", post="ZI", phase=0.0),
 )
 ECR_PAULI_TWIRLS = (
@@ -463,20 +468,20 @@ ISWAP_PAULI_TWIRLS = (
 )
 SWAP_PAULI_TWIRLS = (
     PauliTwirl(pre="II", post="II", phase=0.0),
-    PauliTwirl(pre="XI", post="IX", phase=0.0),
-    PauliTwirl(pre="YI", post="IY", phase=0.0),
-    PauliTwirl(pre="ZI", post="IZ", phase=0.0),
     PauliTwirl(pre="IX", post="XI", phase=0.0),
-    PauliTwirl(pre="XX", post="XX", phase=0.0),
-    PauliTwirl(pre="YX", post="XY", phase=0.0),
-    PauliTwirl(pre="ZX", post="XZ", phase=0.0),
     PauliTwirl(pre="IY", post="YI", phase=0.0),
-    PauliTwirl(pre="XY", post="YX", phase=0.0),
-    PauliTwirl(pre="YY", post="YY", phase=0.0),
-    PauliTwirl(pre="ZY", post="YZ", phase=0.0),
     PauliTwirl(pre="IZ", post="ZI", phase=0.0),
+    PauliTwirl(pre="XI", post="IX", phase=0.0),
+    PauliTwirl(pre="XX", post="XX", phase=0.0),
+    PauliTwirl(pre="XY", post="YX", phase=0.0),
     PauliTwirl(pre="XZ", post="ZX", phase=0.0),
+    PauliTwirl(pre="YI", post="IY", phase=0.0),
+    PauliTwirl(pre="YX", post="XY", phase=0.0),
+    PauliTwirl(pre="YY", post="YY", phase=0.0),
     PauliTwirl(pre="YZ", post="ZY", phase=0.0),
+    PauliTwirl(pre="ZI", post="IZ", phase=0.0),
+    PauliTwirl(pre="ZX", post="XZ", phase=0.0),
+    PauliTwirl(pre="ZY", post="YZ", phase=0.0),
     PauliTwirl(pre="ZZ", post="ZZ", phase=0.0),
 )
 
