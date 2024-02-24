@@ -131,8 +131,8 @@ class PauliTwirl:
 
     def preserves_unitary(self, unitary: ArrayLike | Gate | str) -> bool:
         """Checks whether the twirl preserves the input unitary."""
-        unitary = self._validate_unitary(unitary)
         twirled = self.apply_to_unitary(unitary)
+        unitary = self._validate_unitary(unitary)  # Note: revalidation, ArrayLike more expensive
         return allclose(twirled.conj().T @ unitary, eye(2**self.num_qubits))
 
     @classmethod
@@ -166,7 +166,7 @@ class PauliTwirl:
             )
         return node
 
-    def _validate_unitary(self, unitary) -> ndarray:
+    def _validate_unitary(self, unitary: ArrayLike | Gate | str) -> ndarray:
         unitary = _validate_unitary(unitary)
         dimension = unitary.shape[0]
         num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
@@ -181,7 +181,6 @@ class PauliTwirl:
 ################################################################################
 ## COMPUTE TWIRLS
 ################################################################################
-@singledispatch
 def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
     """Generate operation-preserving Pauli twirls for input unitary.
 
@@ -195,35 +194,26 @@ def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwir
         Adapted from the reference:
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
-    unitary = _validate_unitary(unitary)
+    if isinstance(unitary, str) and unitary in PAULI_TWIRLS:
+        yield from PAULI_TWIRLS.get(unitary)
+    elif isinstance(unitary, Gate) and unitary.name in PAULI_TWIRLS:
+        yield from PAULI_TWIRLS.get(unitary.name)
+    else:
+        unitary = _validate_unitary(unitary)
+        yield from _generate_pauli_twirls(unitary)
+
+
+def _generate_pauli_twirls(unitary: ndarray) -> Iterator[PauliTwirl]:
     dimension = unitary.shape[0]
     num_qubits = dimension.bit_length() - 1  # Note: dimension == 2**num_qubits
     n_qubit_paulis = ("".join(pauli) for pauli in product("IXYZ", repeat=num_qubits))
     for pre, post in product(n_qubit_paulis, repeat=2):
         twirl = PauliTwirl(pre, post, phase=0.0)
-        twirled = twirl.apply_to_unitary(unitary)  # TODO: remove overhead in revalidation
+        twirled = twirl.apply_to_unitary(unitary)  # TODO: avoid revalidation
         check = twirled.conj().T @ unitary
         phase_factor = check[0, 0]
         if not isclose(phase_factor, 0) and allclose(check / phase_factor, eye(dimension)):
             yield PauliTwirl(pre=pre, post=post, phase=angle(phase_factor))
-
-
-@generate_pauli_twirls.register
-def _(unitary: Gate) -> Iterator[PauliTwirl]:
-    if unitary.name in PAULI_TWIRLS:
-        yield from PAULI_TWIRLS.get(unitary.name)
-    else:
-        unitary = _validate_unitary(unitary)
-        yield from generate_pauli_twirls(unitary)
-
-
-@generate_pauli_twirls.register
-def _(unitary: str) -> Iterator[PauliTwirl]:
-    if unitary in PAULI_TWIRLS:
-        yield from PAULI_TWIRLS.get(unitary)
-    else:
-        unitary = _validate_unitary(unitary)  # type: ignore
-        yield from generate_pauli_twirls(unitary)
 
 
 ################################################################################
@@ -295,12 +285,7 @@ class TwoQubitPauliTwirlPass(PauliTwirlPass):
 def _validate_unitary(unitary: ArrayLike | Gate | str) -> ndarray:
     unitary = array(unitary)
     if unitary.dtype.kind not in "buifc":
-        raise TypeError(f"Invalid unitary type {type(unitary)}, expected <ArrayLike | Gate | str>.")
-    return _validate_unitary(unitary)
-
-
-@_validate_unitary.register
-def _(unitary: ndarray) -> ndarray:
+        raise TypeError("Invalid unitary type, expected numeric <ArrayLike | Gate | str>.")
     if unitary.ndim != 2:
         raise ValueError(f"Invalid unitary matrix with {unitary.ndim} axes, expected 2.")
     if unitary.shape[0] != unitary.shape[1]:
@@ -317,7 +302,7 @@ def _(unitary: ndarray) -> ndarray:
 def _(unitary: Gate) -> ndarray:
     if unitary.is_parameterized():
         raise ValueError("Twirls cannot be computed for parametrized gates.")
-    return unitary.to_matrix()  # Note: assuming gate object represents a unitary
+    return unitary.to_matrix()  # Note: Gates represent unitary matrices, avoid revalidation
 
 
 @_validate_unitary.register

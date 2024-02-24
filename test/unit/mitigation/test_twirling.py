@@ -266,7 +266,7 @@ class TestPauliTwirl:
         with raises(ValueError, match=error_message):
             PauliTwirl("I", "I", 0.0).apply_to_unitary(eye(4))
 
-        error_message = r"Invalid unitary type .*, expected <ArrayLike | Gate | str>."
+        error_message = r"Invalid unitary type, expected numeric <ArrayLike \| Gate \| str>."
         with raises(TypeError, match=error_message):
             PauliTwirl("I", "I", 0.0).apply_to_unitary(None)
 
