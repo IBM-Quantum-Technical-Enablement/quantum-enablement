@@ -153,6 +153,7 @@ class TestPauliTwirl:
         """Test PauliTwirl set pre."""
         twirl = PauliTwirl("I", "I", 0.0)
         error_message = r"property 'pre' of 'PauliTwirl' object has no setter"
+        error_message += r"|can't set attribute"
         with raises(AttributeError, match=error_message):
             twirl.pre = "I"
 
@@ -160,6 +161,7 @@ class TestPauliTwirl:
         """Test PauliTwirl set post."""
         twirl = PauliTwirl("I", "I", 0.0)
         error_message = r"property 'post' of 'PauliTwirl' object has no setter"
+        error_message += r"|can't set attribute"
         with raises(AttributeError, match=error_message):
             twirl.post = "I"
 
@@ -167,6 +169,7 @@ class TestPauliTwirl:
         """Test PauliTwirl set phase."""
         twirl = PauliTwirl("I", "I", 0.0)
         error_message = r"property 'phase' of 'PauliTwirl' object has no setter"
+        error_message += r"|can't set attribute"
         with raises(AttributeError, match=error_message):
             twirl.phase = 0.0
 
@@ -176,6 +179,7 @@ class TestPauliTwirl:
         twirl = PauliTwirl(pre, post, phase)
         assert twirl.num_qubits == len(pre), "Wrong number of qubits."
         error_message = r"property 'num_qubits' of 'PauliTwirl' object has no setter"
+        error_message += r"|can't set attribute"
         with raises(AttributeError, match=error_message):
             twirl.num_qubits = 0
 
