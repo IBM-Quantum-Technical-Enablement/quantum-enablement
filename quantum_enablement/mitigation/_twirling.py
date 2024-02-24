@@ -17,6 +17,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from functools import singledispatch
 from itertools import product
+from typing import Any
 
 from numpy import allclose, angle, array, exp, eye, isclose, ndarray, pi
 from numpy.random import default_rng
@@ -31,7 +32,7 @@ STANDARD_GATES = get_standard_gate_name_mapping()
 
 
 ################################################################################
-## TWIRL DATA
+## TWIRL CLASS
 ################################################################################
 class PauliTwirl:
     """Pauli twirl.
@@ -41,11 +42,26 @@ class PauliTwirl:
     the represented twirl to an arbitrary operation has no guaranty
     of preserving such operation's original action.
 
+    Attributes:
+        pre: Pauli gate to apply before the twirled operation.
+        post: Pauli gate to apply after the twirled operation.
+        phase: global phase induced by the twirling.
+        num_qubits: number of qubits that the twirl applies to.
+
     Args:
         pre: Pauli gate to apply before the twirled operation.
         post: Pauli gate to apply after the twirled operation.
         phase: global phase induced by the twirling.
+
+    Raises:
+        TypeError: if pre or post are not Pauli gates or str.
+        QiskitError: if pre or post are not valid Pauli str.
+        TypeError: if phase is not float compatible.
+        ValueError: if phase is not a valid float.
+        ValueError: if pre and post operations don't apply to the same number of qubits.
     """
+
+    __slots__ = ("_pre", "_post", "_phase")
 
     def __init__(self, pre: PauliGate | str, post: PauliGate | str, phase: float = 0.0) -> None:
         self._pre: PauliGate = self._validate_gate(pre)
@@ -56,29 +72,22 @@ class PauliTwirl:
                 "Twirling pre and post operations don't apply to the same number of qubits."
             )
 
-    def _validate_gate(self, gate: PauliGate | str) -> PauliGate:
-        # TODO: handle phase
-        if isinstance(gate, PauliGate):
-            return gate
-        if isinstance(gate, str):
-            return PauliGate(gate)
-        raise TypeError(f"Invalid gate type {type(gate)}, expected <PauliGate>.")
-
-    def __eq__(self, __value: object) -> bool:
-        if not isinstance(__value, type(self)):
-            return False
-        pre = self.pre == __value.pre
-        post = self.post == __value.post
-        phase = isclose(self.phase, __value.phase)
-        return pre and post and phase  # type: ignore
-
     def __repr__(self) -> str:
         cls_name = type(self).__name__
         pre = self.pre.params[0]  # pylint: disable=no-member
         post = self.post.params[0]  # pylint: disable=no-member
         phase = self.phase
-        return f"{cls_name}({pre=}, {post=}, {phase=})"
+        return f"{cls_name}({pre=}, {post=}, {phase=:.5f})"
 
+    def __eq__(self, other: Any, /) -> bool:
+        if not isinstance(other, type(self)):
+            return False
+        pre = self.pre == other.pre
+        post = self.post == other.post
+        phase = isclose(self.phase, other.phase)
+        return pre and post and phase  # type: ignore
+
+    ################################## PROPERTIES ##################################
     @property
     def pre(self) -> PauliGate:
         """Pre-operation in the twirl."""
@@ -97,24 +106,11 @@ class PauliTwirl:
     @property
     def num_qubits(self) -> int:
         """Number of qubits that the twirl applies to."""
-        return self._pre.num_qubits
+        return self.pre.num_qubits  # pylint: disable=no-member
 
-    @classmethod
-    def build_trivial(cls, num_qubits: int) -> PauliTwirl:
-        """Get trivial twirl."""
-        identity = "I" * int(num_qubits)
-        return cls(pre=identity, post=identity, phase=0.0)
-
-    def is_trivial(self) -> bool:
-        """Check if twirl is the trivial twirl."""
-        trivial = self.build_trivial(self.num_qubits)
-        return self == trivial
-
+    ################################## PUBLIC API ##################################
     def apply_to_node(self, node: DAGOpNode) -> DAGCircuit:
-        """Apply twirl to input DAG op. node.
-
-        Note: this does not guarantee that the input unitary is preserved.
-        """
+        """Apply twirl to input DAG operation node."""
         node = self._validate_node(node)
         dag = DAGCircuit()
         qubits = QuantumRegister(self.num_qubits)
@@ -124,6 +120,40 @@ class PauliTwirl:
         dag.apply_operation_back(self.post, qubits)
         dag.global_phase += self.phase
         return dag
+
+    def apply_to_unitary(self, unitary: ArrayLike | Gate | str) -> ndarray:
+        """Apply twirl to input unitary."""
+        unitary = self._validate_unitary(unitary)
+        pre = self.pre.to_matrix()  # pylint: disable=no-member
+        post = self.post.to_matrix()  # pylint: disable=no-member
+        phase_factor = exp(1j * self.phase)
+        return (post @ unitary @ pre) * phase_factor
+
+    def preserves_unitary(self, unitary: ArrayLike | Gate | str) -> bool:
+        """Checks whether the twirl preserves the input unitary."""
+        unitary = self._validate_unitary(unitary)
+        twirled = self.apply_to_unitary(unitary)
+        return allclose(twirled.conj().T @ unitary, eye(2**self.num_qubits))
+
+    @classmethod
+    def build_trivial(cls, num_qubits: int) -> PauliTwirl:
+        """Build trivial twirl for a given number of qubits."""
+        identity = "I" * int(num_qubits)
+        return cls(pre=identity, post=identity, phase=0.0)
+
+    def is_trivial(self) -> bool:
+        """Check if twirl is the trivial twirl."""
+        trivial = self.build_trivial(self.num_qubits)
+        return self == trivial
+
+    ################################## VALIDATION ##################################
+    def _validate_gate(self, gate: PauliGate | str) -> PauliGate:
+        # TODO: handle phase
+        if isinstance(gate, PauliGate):
+            return gate
+        if isinstance(gate, str):
+            return PauliGate(gate)
+        raise TypeError(f"Invalid gate type {type(gate)}, expected <PauliGate>.")
 
     def _validate_node(self, node: DAGOpNode) -> DAGOpNode:
         """Validate node."""
@@ -136,14 +166,6 @@ class PauliTwirl:
             )
         return node
 
-    def apply_to_unitary(self, unitary: ArrayLike | Gate | str) -> ndarray:
-        """Apply twirl to input unitary."""
-        unitary = self._validate_unitary(unitary)
-        pre = self.pre.to_matrix()  # pylint: disable=no-member
-        post = self.post.to_matrix()  # pylint: disable=no-member
-        phase_factor = exp(1j * self.phase)
-        return (post @ unitary @ pre) * phase_factor
-
     def _validate_unitary(self, unitary) -> ndarray:
         unitary = _validate_unitary(unitary)
         dimension = unitary.shape[0]
@@ -155,19 +177,13 @@ class PauliTwirl:
             )
         return unitary
 
-    def preserves_unitary(self, unitary: ArrayLike | Gate | str) -> bool:
-        """Checks whether the twirl preserves the input unitary."""
-        unitary = self._validate_unitary(unitary)
-        twirled = self.apply_to_unitary(unitary)
-        return allclose(twirled.conj().T @ unitary, eye(2**self.num_qubits))
-
 
 ################################################################################
 ## COMPUTE TWIRLS
 ################################################################################
 @singledispatch
 def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
-    """Generate Pauli twirls for input unitary.
+    """Generate operation-preserving Pauli twirls for input unitary.
 
     Args:
         unitary: the unitary to compute twirls for.
@@ -216,7 +232,7 @@ def _(unitary: str) -> Iterator[PauliTwirl]:
 class PauliTwirlPass(TransformationPass):
     """Pauli twirl gates in input circuit randomly.
 
-    Note: parametrized gates are not supported and will be skipped.
+    Both non-unitary and parametrized gates are not supported and will be skipped.
 
     Args:
         seed: seed for random number generator.
@@ -231,6 +247,7 @@ class PauliTwirlPass(TransformationPass):
         self._rng = default_rng(seed)
 
     def run(self, dag: DAGCircuit):
+        """Pauli twirl target gates randomly for input DAGCircuit inplace."""
         target_nodes = (node for node in dag.op_nodes() if self._is_target_op(node.op))
         for node in target_nodes:
             twirl = self._get_random_twirl(node.op)
@@ -255,7 +272,7 @@ class PauliTwirlPass(TransformationPass):
 class TwoQubitPauliTwirlPass(PauliTwirlPass):
     """Pauli twirl two-qubit gates in input circuit randomly.
 
-    Note: parametrized gates are not supported and will be skipped.
+    Both non-unitary and parametrized gates are not supported and will be skipped.
 
     Args:
         seed: seed for random number generator.

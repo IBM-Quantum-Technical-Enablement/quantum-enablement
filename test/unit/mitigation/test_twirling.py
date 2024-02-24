@@ -147,7 +147,7 @@ class TestPauliTwirl:
     def test_repr(self, pre, post, phase):
         """Test PauliTwirl repr."""
         twirl = PauliTwirl(pre, post, phase)
-        assert repr(twirl) == f"PauliTwirl({pre=}, {post=}, {phase=})", "Wrong repr."
+        assert repr(twirl) == f"PauliTwirl({pre=}, {post=}, {phase=:.5f})", "Wrong repr."
 
     def test_set_pre(self):
         """Test PauliTwirl set pre."""
