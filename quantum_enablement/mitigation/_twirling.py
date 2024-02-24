@@ -14,15 +14,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterator
+from collections.abc import Iterator
 from functools import singledispatch
 from itertools import product
-from warnings import warn
 
 from numpy import allclose, angle, array, exp, eye, isclose, ndarray, pi
 from numpy.random import default_rng
 from numpy.typing import ArrayLike
-from qiskit.circuit import Gate, QuantumRegister
+from qiskit.circuit import Gate, Operation, QuantumRegister
 from qiskit.circuit.library import PauliGate
 from qiskit.circuit.library.standard_gates import get_standard_gate_name_mapping
 from qiskit.dagcircuit import DAGCircuit, DAGOpNode
@@ -97,7 +96,7 @@ class PauliTwirl:
 
     @property
     def num_qubits(self) -> int:
-        """Num of qubits that the twirl applies to."""
+        """Number of qubits that the twirl applies to."""
         return self._pre.num_qubits
 
     @classmethod
@@ -112,7 +111,7 @@ class PauliTwirl:
         return self == trivial
 
     def apply_to_node(self, node: DAGOpNode) -> DAGCircuit:
-        """Apply twirl to input DAG node.
+        """Apply twirl to input DAG op. node.
 
         Note: this does not guarantee that the input unitary is preserved.
         """
@@ -168,13 +167,13 @@ class PauliTwirl:
 ################################################################################
 @singledispatch
 def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwirl]:
-    """Generate Pauli twirls for input two-qubit unitary.
+    """Generate Pauli twirls for input unitary.
 
     Args:
-        unitary: the two-qubit unitary to compute twirls for.
+        unitary: the unitary to compute twirls for.
 
     Yields:
-        Tuples of possible twirls. Qubit order is given by the input.
+        Twirls preserving the unitary operation. Qubit order is given by the input.
 
     Notes:
         Adapted from the reference:
@@ -220,7 +219,6 @@ class PauliTwirlPass(TransformationPass):
     Note: parametrized gates are not supported and will be skipped.
 
     Args:
-        target_gates: names of gates to twirl. If None, all gates will be twirled.
         seed: seed for random number generator.
 
     Notes:
@@ -228,38 +226,25 @@ class PauliTwirlPass(TransformationPass):
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
 
-    def __init__(self, target_gates: Collection[str] | None = None, *, seed: int | None = None):
+    def __init__(self, *, seed: int | None = None):
         super().__init__()
-        self._target_gates = self._validate_target_gates(target_gates)
         self._rng = default_rng(seed)
 
-    def _validate_target_gates(self, target_gates: Collection[str] | None) -> set[str]:
-        if target_gates is None:
-            return set()
-        if not isinstance(target_gates, Collection) or not all(
-            isinstance(gate, str) for gate in target_gates
-        ):
-            raise TypeError("Invalid input target gates, expected collection of gate names (str).")
-        return set(target_gates)
-
     def run(self, dag: DAGCircuit):
-        target_nodes = (node for node in dag.op_nodes() if self._is_target_node(node))
+        target_nodes = (node for node in dag.op_nodes() if self._is_target_op(node.op))
         for node in target_nodes:
             twirl = self._get_random_twirl(node.op)
             twirl_dag = twirl.apply_to_node(node)
             dag.substitute_node_with_dag(node, twirl_dag)
         return dag
 
-    def _is_target_node(self, node: DAGOpNode) -> bool:
-        """Check whether node should be included or not."""
-        gate = node.op
-        requested = gate.name in self._target_gates
-        if gate.is_parameterized():
-            if requested:
-                warn(f"Skipped unsupported parameterized gate: '{gate.name}({gate.params})'.")
-            return False
-        no_requests = not self._target_gates
-        return requested or no_requests
+    def _is_target_op(self, op: Operation) -> bool:
+        """Check whether operation should be twirled or not."""
+        if not isinstance(op, Gate):
+            return False  # Note: Skip non-gate nodes (e.g. barriers, measurements)
+        if op.is_parameterized():
+            return False  # Note: Skip parametrized gates
+        return True
 
     def _get_random_twirl(self, gate: Gate) -> PauliTwirl:
         """Get random twirl for the input gate."""
@@ -273,7 +258,6 @@ class TwoQubitPauliTwirlPass(PauliTwirlPass):
     Note: parametrized gates are not supported and will be skipped.
 
     Args:
-        target_gates: names of gates to twirl. If None, all two-qubit gates will be twirled.
         seed: seed for random number generator.
 
     Notes:
@@ -281,14 +265,10 @@ class TwoQubitPauliTwirlPass(PauliTwirlPass):
         https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
 
-    def _is_target_node(self, node: DAGOpNode) -> bool:
-        gate = node.op
-        requested = gate.name in self._target_gates
-        if gate.num_qubits != 2:
-            if requested:
-                warn(f"Skipped unsupported non-two-qubit gate: '{gate.name}<{gate.num_qubits}>'.")
-            return False
-        return super()._is_target_node(node)
+    def _is_target_op(self, op: DAGOpNode) -> bool:
+        if op.num_qubits != 2:
+            return False  # Note: Only twirl two-qubit gates
+        return super()._is_target_op(op)
 
 
 ################################################################################

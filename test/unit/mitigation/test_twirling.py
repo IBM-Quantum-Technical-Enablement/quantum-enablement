@@ -12,10 +12,13 @@
 
 """Test twirling module."""
 
-from numpy import allclose, exp, eye
+from copy import deepcopy
+
+from numpy import allclose, angle, exp, eye, isclose, pi
 from pytest import mark, raises  # pylint: disable=import-error
-from qiskit.circuit import Parameter
+from qiskit.circuit import Gate, Parameter, QuantumCircuit
 from qiskit.circuit.library import PauliGate, RXGate
+from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.dagcircuit import DAGOpNode
 from qiskit.exceptions import QiskitError
 
@@ -23,10 +26,14 @@ from quantum_enablement.mitigation._twirling import (
     PAULI_TWIRLS,
     STANDARD_GATES,
     PauliTwirl,
+    TwoQubitPauliTwirlPass,
     generate_pauli_twirls,
 )
 
 
+################################################################################
+## CASES
+################################################################################
 def generate_test_pauli_twirls():
     """Generate test twirls."""
     yield ("I", "I", 0.0)
@@ -40,6 +47,57 @@ def generate_test_pauli_twirls():
     yield ("YIZ", "ZXI", 1.0)
 
 
+def generate_test_dags():
+    """Generate test DAG circuits."""
+    circuit = QuantumCircuit(1)
+    yield circuit_to_dag(circuit)
+
+    circuit.id(0)
+    yield circuit_to_dag(circuit)
+
+    circuit.x(0)
+    yield circuit_to_dag(circuit)
+
+    circuit.h(0)
+    yield circuit_to_dag(circuit)
+
+    circuit.measure_all()
+    yield circuit_to_dag(circuit)
+
+    circuit = QuantumCircuit(2)
+    yield circuit_to_dag(circuit)
+
+    circuit.h(0)
+    yield circuit_to_dag(circuit)
+
+    circuit.cx(0, 1)
+    yield circuit_to_dag(circuit)
+
+    circuit.x(1)
+    yield circuit_to_dag(circuit)
+
+    circuit.measure_all()
+    yield circuit_to_dag(circuit)
+
+    circuit = QuantumCircuit(3)
+    yield circuit_to_dag(circuit)
+
+    circuit.h(0)
+    yield circuit_to_dag(circuit)
+
+    circuit.cx(0, 1)
+    yield circuit_to_dag(circuit)
+
+    circuit.cx(1, 2)
+    yield circuit_to_dag(circuit)
+
+    circuit.measure_all()
+    yield circuit_to_dag(circuit)
+
+
+################################################################################
+## TESTS
+################################################################################
 class TestPauliTwirl:
     """Test suite for the PauliTwirl class."""
 
@@ -274,3 +332,69 @@ class TestGeneratePauliTwirls:
             assert twirl is not expected, "PauliTwirls should not be the same object."
             assert twirl == expected, "Wrong twirl."
             assert twirl.preserves_unitary(gate), "Twirl should preserve unitary."
+
+
+class TestTwoQubitPauliTwirlPass:
+    """Test suite for the TwoQubitPauliTwirlPass class."""
+
+    @mark.parametrize("dag", generate_test_dags())
+    def test_run(self, dag):  # pylint: disable=too-many-locals
+        """Test TwoQubitPauliTwirlPass run."""
+        original_dag = deepcopy(dag)
+        twirled_dag = TwoQubitPauliTwirlPass(seed=0).run(dag)
+        assert twirled_dag is dag, "Twirled DAG should be the same object."
+
+        twirled_nodes = iter(twirled_dag.topological_op_nodes())
+        twirl_phase = 0.0  # Note: to check new global phase.
+        for node in original_dag.topological_op_nodes():
+            if isinstance(node.op, Gate) and node.op.num_qubits == 2:
+
+                # Check that the twirling was performed.
+                pre = next(twirled_nodes)
+                twirled = next(twirled_nodes)
+                post = next(twirled_nodes)
+                assert (
+                    isinstance(pre.op, PauliGate)
+                    and twirled.op == node.op
+                    and isinstance(post.op, PauliGate)
+                    and pre.qargs == post.qargs == twirled.qargs == node.qargs
+                    and pre.cargs == post.cargs == twirled.cargs == node.cargs
+                ), "Two-qubit operations should be twirled."
+
+                # Check that the unitary was preserved up to a global phase.
+                pre = pre.op.to_matrix()
+                original = twirled.op.to_matrix()
+                post = post.op.to_matrix()
+                twirled = post @ original @ pre
+                check = twirled.conj().T @ original
+                phase_factor = check[0, 0]
+                assert allclose(
+                    check / phase_factor, eye(4)
+                ), "Twirled unitary should be preserved up to a global phase."
+                twirl_phase += angle(phase_factor)
+
+            else:
+                twirled = next(twirled_nodes)
+                assert (
+                    twirled.op == node.op
+                    and twirled.qargs == node.qargs
+                    and twirled.cargs == node.cargs
+                ), "Non-two-qubit operations should be preserved."
+
+        # Check that the global phase was updated.
+        original_circuit = dag_to_circuit(original_dag)
+        twirled_circuit = dag_to_circuit(twirled_dag)
+        phase_diff = twirled_circuit.global_phase - original_circuit.global_phase
+        check = (phase_diff - twirl_phase) % (2 * pi)
+        assert isclose(check, 0.0), "Global phase should be updated."
+
+    def test_parametrized(self):
+        """Test TwoQubitPauliTwirlPass with parametrized gates."""
+        circuit = QuantumCircuit(2)
+        theta = Parameter("theta")
+        circuit.crx(theta, 0, 1)
+        dag = circuit_to_dag(circuit)
+        original = deepcopy(dag)
+        twirled = TwoQubitPauliTwirlPass().run(dag)
+        assert twirled is dag, "Twirled DAG should be the same object."
+        assert twirled == original, "Twirled DAG should be the same as the original."
