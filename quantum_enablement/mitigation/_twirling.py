@@ -189,10 +189,6 @@ def generate_pauli_twirls(unitary: ArrayLike | Gate | str) -> Iterator[PauliTwir
 
     Yields:
         Twirls preserving the unitary operation. Qubit order is given by the input.
-
-    Notes:
-        Adapted from the reference:
-        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
     if isinstance(unitary, str) and unitary in PAULI_TWIRLS:
         yield from PAULI_TWIRLS.get(unitary)
@@ -226,10 +222,6 @@ class PauliTwirlPass(TransformationPass):
 
     Args:
         seed: seed for random number generator.
-
-    Notes:
-        Adapted from the reference:
-        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
 
     def __init__(self, *, seed: int | None = None):
@@ -266,10 +258,6 @@ class TwoQubitPauliTwirlPass(PauliTwirlPass):
 
     Args:
         seed: seed for random number generator.
-
-    Notes:
-        Adapted from the reference:
-        https://quantum-enablement.org/posts/2023/2023-02-02-pauli_twirling.html
     """
 
     def _is_target_op(self, op: DAGOpNode) -> bool:
