@@ -52,6 +52,8 @@ class MBLChainCircuit(QuantumCircuit):
         super().__init__(num_qubits, name=f"MBLChainCircuit<{num_qubits}, {depth}>")
 
         self.x(range(1, num_qubits, 2))  # TODO: add optional initial state arg
+        if barriers and depth > 0:
+            self.barrier()
         evolution = MBLChainEvolution(num_qubits, depth, barriers=barriers)
         self.compose(evolution, inplace=True)
         if measurements:
@@ -89,7 +91,7 @@ class MBLChainEvolution(QuantumCircuit):
 
         for layer in range(depth):
             layer_parity = layer % 2
-            if barriers:
+            if barriers and layer > 0:
                 self.barrier()
             for qubit in range(layer_parity, num_qubits - 1, 2):
                 self.cz(qubit, qubit + 1)
