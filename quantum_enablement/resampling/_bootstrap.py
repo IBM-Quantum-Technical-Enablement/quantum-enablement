@@ -55,6 +55,11 @@ class Bootstrap:
         self.default_size = default_size
         self._rng: Generator = default_rng(seed)
 
+    def __repr__(self) -> str:
+        cls_name = self.__class__.__name__
+        default_size = self.default_size
+        return f"{cls_name}({default_size})"
+
     ################################## PROPERTIES ##################################
     @property
     def default_size(self) -> int:
