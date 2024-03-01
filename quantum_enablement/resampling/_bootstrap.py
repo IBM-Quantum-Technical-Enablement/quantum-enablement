@@ -55,9 +55,7 @@ class Bootstrap:
         self.default_size = default_size
         self._rng: Generator = default_rng(seed)
 
-    ################################################################################
-    ## PROPERTIES
-    ################################################################################
+    ################################## PROPERTIES ##################################
     @property
     def default_size(self) -> int:
         """Default resample size."""
@@ -68,9 +66,7 @@ class Bootstrap:
         size = size or 10_000
         self._default_size: int = self._validate_size(size)
 
-    ################################################################################
-    ## PUBLIC API
-    ################################################################################
+    ################################## PUBLIC API ##################################
     @singledispatchmethod
     def resample(self, samples, *, size: int | None = None) -> list:
         """Resample randomly.
@@ -198,9 +194,7 @@ class Bootstrap:
         result.metadata[0] = {**samples.metadata[0], **result.metadata[0]}
         return result
 
-    ################################################################################
-    ## INTERNAL API
-    ################################################################################
+    ################################## VALIDATION ##################################
     def _validate_size(self, size: int) -> int:
         """Validate input size."""
         try:
