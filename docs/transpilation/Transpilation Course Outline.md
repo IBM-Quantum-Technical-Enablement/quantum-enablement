@@ -3,9 +3,9 @@
 ## 0. Introduction to transpilation
 - [Tutorial: overview of the transpiler](https://docs.quantum.ibm.com/api/qiskit/transpiler)
 - [Tutorial: configuring `transpile`](https://docs.quantum.ibm.com/transpile/defaults-and-configuration-options)
-1. DAG
-    - [Tutorial: DAG circuit overview](https://www.rustworkx.org/tutorial/dags.html#)
-    - [API reference: DAG Class](https://docs.quantum.ibm.com/api/qiskit/qiskit.dagcircuit.DAGCircuit)
+## 1. DAG
+- [Tutorial: DAG circuit overview](https://www.rustworkx.org/tutorial/dags.html#)
+- [API reference: DAG Class](https://docs.quantum.ibm.com/api/qiskit/qiskit.dagcircuit.DAGCircuit)
 ## 2. Transpiler Passes: Analysis vs Transformation
 - [Tutorial: Dynamical Decoupling as sequence of AnalysisPass and TransformationPass](https://docs.quantum.ibm.com/transpile/dynamical-decoupling-pass-manager)
 - [API Reference: List of passes](https://docs.quantum.ibm.com/api/qiskit/transpiler_passes)
