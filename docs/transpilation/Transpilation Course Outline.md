@@ -1,7 +1,6 @@
-# Repository with enablement material
+# Transpilation Course Outline
 
-## Transpilation
-0. Introduction to transpilation
+## 0. Introduction to transpilation
     - [Tutorial: overview of the transpiler](https://docs.quantum.ibm.com/api/qiskit/transpiler)
     - [Tutorial: configuring `transpile`](https://docs.quantum.ibm.com/transpile/defaults-and-configuration-options)
 1. DAG
