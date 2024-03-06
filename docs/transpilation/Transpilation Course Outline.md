@@ -16,10 +16,10 @@
 ## 4. Pass Managers and Flow controllers 
 - [Tutorial: Use the Pass Manager](https://docs.quantum.ibm.com/transpile/transpile-with-pass-managers)
 - [Tutorial: Configuring the Pass Manager](Configuring%20the%20Pass%20Manager.ipynb)
-## 6. Staged Pass Managers and transpilation stages
+## 5. Staged Pass Managers and transpilation stages
 - [Tutorial: Transpiler stages](https://docs.quantum.ibm.com/transpile/transpiler-stages)
-## 7. Transpiler Plugins
+## 6. Transpiler Plugins
 - [Tutorial: Transpiler plugins](https://docs.quantum.ibm.com/transpile/transpiler-plugins)
 - [Tutorial: Create a transpiler plugin](https://docs.quantum.ibm.com/transpile/create-a-transpiler-plugin)
-## 8. Custom backend definition
+## 7. Custom backend definition
 - [Tutorial: Define a backend with custom topology](Custom%20backend%20definition.ipynb)
