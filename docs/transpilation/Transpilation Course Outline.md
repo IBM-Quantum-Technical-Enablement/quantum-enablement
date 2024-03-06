@@ -1,8 +1,8 @@
 # Transpilation Course Outline
 
 ## 0. Introduction to transpilation
-    - [Tutorial: overview of the transpiler](https://docs.quantum.ibm.com/api/qiskit/transpiler)
-    - [Tutorial: configuring `transpile`](https://docs.quantum.ibm.com/transpile/defaults-and-configuration-options)
+- [Tutorial: overview of the transpiler](https://docs.quantum.ibm.com/api/qiskit/transpiler)
+- [Tutorial: configuring `transpile`](https://docs.quantum.ibm.com/transpile/defaults-and-configuration-options)
 1. DAG
     - [Tutorial: DAG circuit overview](https://www.rustworkx.org/tutorial/dags.html#)
     - [API reference: DAG Class](https://docs.quantum.ibm.com/api/qiskit/qiskit.dagcircuit.DAGCircuit)
