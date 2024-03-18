@@ -14,10 +14,8 @@
 
 from ._mbl import MBLChainCircuit
 from ._qaoa import QAOAPathCircuit
-from ._utils import compute_uncompute
 
 __all__ = [
-    "compute_uncompute",
     "MBLChainCircuit",
     "QAOAPathCircuit",
 ]
