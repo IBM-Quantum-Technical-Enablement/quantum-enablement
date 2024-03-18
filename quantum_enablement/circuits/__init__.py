@@ -12,8 +12,8 @@
 
 """Quantum circuit library and tools."""
 
-from ._qaoa import QAOALineCircuit
+from ._qaoa import QAOAPathCircuit
 
 __all__ = [
-    "QAOALineCircuit",
+    "QAOAPathCircuit",
 ]

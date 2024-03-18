@@ -22,7 +22,7 @@ from qiskit.circuit import ParameterVector
 
 
 # TODO: add graph max-cut weights input arg
-class QAOALineCircuit(QuantumCircuit):
+class QAOAPathCircuit(QuantumCircuit):
     """Parameterized QAOA acyclic line graph quantum circuit.
 
     The cost parameter-vector is labeled γ, and the mixer
@@ -49,7 +49,7 @@ class QAOALineCircuit(QuantumCircuit):
         barriers = bool(barriers)
         measurements = bool(measurements)
 
-        super().__init__(num_qubits, name=f"QAOALineCircuit<{num_qubits}, {depth}>")
+        super().__init__(num_qubits, name=f"QAOAPathCircuit<{num_qubits}, {depth}>")
 
         gammas = ParameterVector("γ", depth // 2)
         betas = ParameterVector("β", depth // 2)
