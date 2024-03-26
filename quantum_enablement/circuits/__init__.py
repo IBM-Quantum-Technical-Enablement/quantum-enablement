@@ -12,8 +12,10 @@
 
 """Quantum circuit library and tools."""
 
+from ._qaoa import QAOAPathCircuit
 from ._utils import compute_uncompute
 
 __all__ = [
+    "QAOAPathCircuit",
     "compute_uncompute",
 ]
