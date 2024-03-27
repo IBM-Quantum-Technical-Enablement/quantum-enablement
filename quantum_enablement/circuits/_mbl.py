@@ -32,7 +32,7 @@ class MBLChainCircuit(QuantumCircuit):
 
     Args:
         num_qubits: number of qubits (must be even).
-        depth: two-qubit depth.
+        depth: two-qubit depth (must be even).
         barriers: if True adds barriers between layers.
         measurements: if True adds measurements at the end.
 
