@@ -10,14 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Quantum circuit library and tools."""
+"""Error mitigation tools and techniques."""
 
-from ._mbl import MBLChainCircuit
-from ._qaoa import QAOAPathCircuit
-from ._utils import compute_uncompute
+from ._twirling import TwoQubitPauliTwirlPass
 
 __all__ = [
-    "MBLChainCircuit",
-    "QAOAPathCircuit",
-    "compute_uncompute",
+    "TwoQubitPauliTwirlPass",
 ]
