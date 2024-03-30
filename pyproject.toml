@@ -75,6 +75,7 @@ notebook = [
     # QISKIT CORE
     "qiskit[visualization] >= 1.0.0",
     # EXTRA
+    "pyscf >= 2.4.0"
 ]
 
 [project.urls]
