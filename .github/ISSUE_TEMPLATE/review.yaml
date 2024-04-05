@@ -64,7 +64,7 @@ body:
       attributes:
         label: Review criteria
         description: |
-          Please select criteria that you would like the reviewers to focus on.
+          Please select the criteria that you would like the reviewers to focus on.
         options:
           - label: Accuracy
             description: Content is factually accurate and error-free.
