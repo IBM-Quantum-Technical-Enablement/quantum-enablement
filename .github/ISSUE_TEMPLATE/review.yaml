@@ -79,6 +79,35 @@ body:
           - label: Formatting
             description: Content is properly formatted and visually appealing.
 
+  - type: checkboxes
+    id: software
+    attributes:
+      label: Software requirements
+      description: |
+        Please select the software requirements for this content.
+      options:
+        - label: Qiskit
+          description: Content requires Qiskit to run.
+        - label: Qiskit Runtime
+          description: Content requires Qiskit Runtime to run.
+        - label: Qiskit Extension Packages
+          description: Content requires Qiskit Extension Packages to run.
+        - label: Qiskit Community Packages
+          description: Content requires Qiskit Community Packages to run.
+        - label: OpenQASM
+          description: Content requires OpenQASM to run.
+        - label: Other quantum software
+          description: Content requires other quantum software to run.
+        - label: Other classical software
+          description: Content requires other classical software to run.
+  
+  - type: textarea
+    id: reviewers
+    attributes:
+      label: Reviewers
+      description: Who would you like to review this content?
+      placeholder: Enter the GitHub usernames of the reviewers.
+
   - type: textarea
     id: comments
     attributes:
