@@ -1,0 +1,130 @@
+name: 📱 Content review
+description: Review content and suggest improvements or approve for publishing.
+
+title: Review content from `<NOTEBOOK>`
+labels: [content, triage]
+assignees:
+  - ""
+
+body:
+
+################################################################################
+## REPORT
+################################################################################
+  - type: markdown
+    attributes:
+      value: |
+        ### Content review
+  
+  - type: input
+    id: notebook
+    attributes:
+      label: Notebook
+      description: The name of the notebook to review.
+      placeholder: [Notebook](docs/notebooks/...)
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Select the desired outcome of this review issue.
+      options:
+        - label: Suggest improvements
+          value: improvements
+        - label: Collect feedback
+          value: feedback
+        - label: Approval to publish
+          value: approval
+      default: improvements
+      validations:
+        required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Content description
+      description: Describe the content that needs to be reviewed.
+      placeholder: Enter a brief description of the content.
+    validations:
+      required: true
+
+
+################################################################################
+## OPTIONAL
+################################################################################
+  - type: markdown
+    attributes:
+      value: |
+        ### Additional information
+  
+  - type: checkboxes
+      id: criteria
+      attributes:
+        label: Review criteria
+        description: |
+          Please select the criteria that you would like the reviewers to focus on.
+        options:
+          - label: Accuracy
+            description: Content is factually accurate and error-free.
+          - label: Clarity
+            description: Content is easy to understand and communicates effectively.
+          - label: Completeness
+            description: Content covers all necessary information and meets requirements.
+          - label: Compliance
+            description: Content adheres to guidelines, policies, and legal requirements.
+          - label: Style
+            description: Content follows the appropriate style guide and tone.
+          - label: Formatting
+            description: Content is properly formatted and visually appealing.
+
+  - type: checkboxes
+    id: software
+    attributes:
+      label: Software requirements
+      description: |
+        Please select the software requirements for this content.
+      options:
+        - label: Qiskit
+          description: Content requires Qiskit to run.
+        - label: Qiskit Runtime
+          description: Content requires Qiskit Runtime to run.
+        - label: Qiskit Extension Packages
+          description: Content requires Qiskit Extension Packages to run.
+        - label: Qiskit Community Packages
+          description: Content requires Qiskit Community Packages to run.
+        - label: OpenQASM
+          description: Content requires OpenQASM to run.
+        - label: Other quantum software
+          description: Content requires other quantum software to run.
+        - label: Other classical software
+          description: Content requires other classical software to run.
+  
+  - type: textarea
+    id: reviewers
+    attributes:
+      label: Reviewers
+      description: Who would you like to review this content?
+      placeholder: Enter the GitHub usernames of the reviewers.
+
+  - type: textarea
+    id: comments
+    attributes:
+      label: Additional comments
+      description: |
+        Add any additional comments or instructions for the reviewers.
+      placeholder: Enter any additional comments here.
+  
+
+################################################################################
+## AGREEMENT
+################################################################################
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct.
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
