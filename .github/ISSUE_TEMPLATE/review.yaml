@@ -14,7 +14,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ### Content review
+        ## Content review
   
   - type: input
     id: notebook
@@ -54,22 +54,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        ### Additional information
+        ## Additional information
   
-  - type: checkboxes
-    id: criteria
-    attributes:
-      label: Review criteria
-      description: |
-        Please select the criteria that you would like the reviewers to focus on.
-      options:
-        - label: "Accuracy: content is factually accurate and error-free"
-        - label: "Clarity: content is easy to understand and communicates effectively"
-        - label: "Completeness: content covers all necessary information"
-        - label: "Compliance: content adheres to guidelines, policies, and legal requirements"
-        - label: "Style: content follows the appropriate style guide and tone"
-        - label: "Formatting: content is properly formatted and visually appealing"
-
   - type: checkboxes
     id: software
     attributes:
@@ -85,12 +71,26 @@ body:
         - label: Other quantum software
         - label: Other classical software
   
+  - type: checkboxes
+    id: criteria
+    attributes:
+      label: Review criteria
+      description: |
+        Please select the criteria that you would like the reviewers to focus on.
+      options:
+        - label: "Accuracy: content is factually accurate and error-free"
+        - label: "Clarity: content is easy to understand and communicates effectively"
+        - label: "Completeness: content covers all necessary information"
+        - label: "Compliance: content adheres to guidelines, policies, and legal requirements"
+        - label: "Style: content follows the appropriate style guide and tone"
+        - label: "Formatting: content is properly formatted and visually appealing"
+
   - type: textarea
     id: reviewers
     attributes:
       label: Reviewers
       description: Who would you like to review this content?
-      placeholder: Enter the GitHub usernames of the reviewers.
+      placeholder: Enter the GitHub usernames of the suggested reviewers.
 
   - type: textarea
     id: comments
