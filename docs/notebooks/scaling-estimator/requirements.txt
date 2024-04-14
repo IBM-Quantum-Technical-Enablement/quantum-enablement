@@ -1,4 +1,3 @@
-quantum-enablement @ git+https://github.com/IBM-Quantum-Technical-Enablement/quantum-enablement
 qiskit[visualization] >= 1.0.0
 qiskit-ibm-runtime >= 0.22.0
 prototype-zne >= 1.3.1
