@@ -63,11 +63,11 @@ body:
       description: |
         Please select the software requirements for this content.
       options:
-        - label: Qiskit
-        - label: Qiskit Runtime
-        - label: Qiskit Extension Packages
+        - label: Qiskit Packages
+        - label: Qiskit Extensions Packages
         - label: Qiskit Community Packages
-        - label: OpenQASM
+        - label: OpenQASM Packages
+        - label: Other Qiskit Ecosystem Packages
         - label: Other quantum software
         - label: Other classical software
   
