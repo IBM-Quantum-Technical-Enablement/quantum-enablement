@@ -1,0 +1,114 @@
+name: 📱 Content review
+description: Review content and suggest improvements or approve for publishing.
+
+title: Review content from `<NOTEBOOK>`
+labels: [content, triage]
+assignees:
+  - ""
+
+body:
+
+################################################################################
+## REPORT
+################################################################################
+  - type: markdown
+    attributes:
+      value: |
+        ## Content review
+  
+  - type: input
+    id: notebook
+    attributes:
+      label: Notebook
+      description: The name of the notebook to review.
+      placeholder: "[Notebook](docs/notebooks/...)"
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Select the desired outcome of this review issue.
+      options:
+        - Suggest improvements
+        - Collect feedback
+        - Approval to publish
+      default: 0
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Content description
+      description: Describe the content that needs to be reviewed.
+      placeholder: Enter a brief description of the content.
+    validations:
+      required: true
+
+
+################################################################################
+## OPTIONAL
+################################################################################
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional information
+  
+  - type: checkboxes
+    id: software
+    attributes:
+      label: Software requirements
+      description: |
+        Please select the software requirements for this content.
+      options:
+        - label: Qiskit Packages
+        - label: Qiskit Extensions Packages
+        - label: Qiskit Community Packages
+        - label: OpenQASM Packages
+        - label: Other Qiskit Ecosystem Packages
+        - label: Other quantum software
+        - label: Other classical software
+  
+  - type: checkboxes
+    id: criteria
+    attributes:
+      label: Review criteria
+      description: |
+        Please select the criteria that you would like the reviewers to focus on.
+      options:
+        - label: "Accuracy: content is factually accurate and error-free"
+        - label: "Clarity: content is easy to understand and communicates effectively"
+        - label: "Completeness: content covers all necessary information"
+        - label: "Compliance: content adheres to guidelines, policies, and legal requirements"
+        - label: "Style: content follows the appropriate style guide and tone"
+        - label: "Formatting: content is properly formatted and visually appealing"
+
+  - type: textarea
+    id: reviewers
+    attributes:
+      label: Reviewers
+      description: Who would you like to review this content?
+      placeholder: Enter the GitHub usernames of the suggested reviewers.
+
+  - type: textarea
+    id: comments
+    attributes:
+      label: Additional comments
+      description: |
+        Add any additional comments or instructions for the reviewers.
+      placeholder: Enter any additional comments here.
+  
+
+################################################################################
+## AGREEMENT
+################################################################################
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct.
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
