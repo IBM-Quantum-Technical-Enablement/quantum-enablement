@@ -47,6 +47,7 @@ def heatmap_plotter(
         xlabel="2-qubit depth",
         ylabel="Number of qubits",
 ):
+    plt.rcParams.update({"text.usetex": True, "font.family": "Helvetica"})
     nrows = len(widths)
     ncols = len(depths)
 
@@ -83,12 +84,12 @@ def heatmap_plotter(
     plt.close()
 
 if __name__ == "__main__":
-    num_qubits = [2, 4, 8]
-    depths = [8, 16, 32, 64]
+    num_qubits = [4, 8, 16, 32, 64]
+    depths = [4, 8, 16, 32, 64]
     extrapolators = ["exponential", "polynomial_degree_2", "linear", ("exponential", "linear")]
-    backend = FakeSherbrooke()
+    # backend = FakeSherbrooke()
     # backend = AerSimulator.from_backend(backend)
-    # backend = AerSimulator(method="matrix_product_state")
+    backend = AerSimulator(method="matrix_product_state")
 
     # create all circuits and observables
     logical_circuits = []
@@ -211,7 +212,7 @@ if __name__ == "__main__":
             widths=num_qubits,
             depths=depths,
             filename=f"rel_err_{name_signature}_{'_'.join(extrapolator)}.png",
-            title=r'Error (%): ' + r'$\overline{\langle{Z_{q}}\rangle}$',
+            title=r'Error (\%): ' + r'$\overline{\langle{Z_{q}}\rangle}$' + f' {extrapolator}',
             directory=name_signature,
             xlabel="2-qubit depth",
             ylabel="Number of qubits",
