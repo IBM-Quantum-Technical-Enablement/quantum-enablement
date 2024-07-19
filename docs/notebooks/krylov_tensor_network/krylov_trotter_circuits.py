@@ -77,15 +77,15 @@ class HeavyHexHeisenbergKrylovTNSim(TNCircuit):
         Returns:
             None
         '''
-        self.apply_two_q_gate_layer([expm(-1j*t*XX) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*YY) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*ZZ) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*XX) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*YY) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*ZZ) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*XX) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*YY) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
-        self.apply_two_q_gate_layer([expm(-1j*t*ZZ) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*self.J*t*XX) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*self.J*t*YY) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*t*self.g*ZZ) for _ in range(len(self.layer1_links))], self.layer1_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*t*self.J*XX) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*t*self.J*YY) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*t*self.g*ZZ) for _ in range(len(self.layer2_links))], self.layer2_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*self.J*t*XX) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*self.J*t*YY) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
+        self.apply_two_q_gate_layer([expm(-1j*self.g*t*ZZ) for _ in range(len(self.layer3_links))], self.layer3_links, chi=self.chi_max)
         return
     
     def apply_controlled_state_prep(self, control_val:int, target_inds:list[int]|None = None, Us:list[np.ndarray]|None = None) -> None:
